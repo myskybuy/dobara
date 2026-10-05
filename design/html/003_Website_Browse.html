@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Browse nearby items — Dobara</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="../styles/dobara.css"><style>body{margin:0}.demo-float{display:none}</style></head>
+<body>
+<!-- Static reference markup for screen: Browse nearby items. Copy the structure and class names into components. -->
+<div class="db">
+<div class="demo-float"><button class="demo-btn"><i class="ic xs i-grid"></i>All pages &amp; states</button></div>
+<div class="stage">
+<div class="device dv-desktop">
+<div class="scroller">
+
+
+<header class="top">
+<div class="container">
+<div class="top-in">
+<button class="logo" style="border:0;background:none;padding:0" aria-label="Dobara home"><span class="logo-m"></span><span>dobara</span></button>
+<button class="locbtn" aria-label="Change location">
+<i class="ic sm i-pin c-pri"></i>
+<span class="col g4" style="gap:0;min-width:0"><span class="t-xs muted" style="line-height:1.1">Near</span><span class="t-sm strong clamp1" style="line-height:1.3">Sector 62, Noida</span></span>
+<i class="ic xs i-chevd muted"></i>
+</button>
+<form class="search" role="search">
+<i class="ic sm i-search muted"></i>
+<input type="search" aria-label="Search" placeholder="Search phones, cameras, furniture and more" value="">
+<button class="btn btn-pri btn-sm" type="submit">Search</button>
+</form>
+<div class="row g4">
+<button class="btn btn-amber hide-m"><i class="ic sm i-plus"></i>Sell an Item</button>
+
+<button class="icon-btn hide-m" aria-label="Messages"><i class="ic i-chat"></i></button>
+<div class="acct">
+<button class="acct-btn" aria-label="Account menu"><span class="av sm av-2">AM</span><span class="t-sm strong hide-m">Aarav</span><i class="ic xs i-chevd muted"></i></button>
+
+</div>
+
+
+</div>
+</div>
+</div>
+<div class="hide-m" style="border-top:1px solid var(--line2)">
+<div class="container">
+<nav class="catnav" aria-label="Categories">
+<button class=""><i class="ic sm i-grid"></i>All categories</button>
+<button class="">Electronics</button><button class="">Mobiles</button><button class="">Laptops</button><button class="">Cameras</button><button class="">Furniture</button><button class="">Vehicles</button><button class="">Fashion</button><button class="">Home Appliances</button><button class="">Books</button><button class="">Sports</button><button class="">Tools</button><button class="">Gaming</button><button class="">Other</button>
+</nav>
+</div>
+</div>
+</header>
+
+
+
+
+
+<main style="min-height:60vh">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="container" style="padding-top:24px;padding-bottom:48px">
+<div class="split-l">
+<aside class="card pad col g20 sticky hide-t" aria-label="Filters">
+<div class="row between"><div class="h4">Filters</div><button class="linkbtn t-sm">Clear all</button></div>
+<div class="col g8"><span class="label">Category</span><div class="row wrapf g6"><button class="chip" style="height:32px">Electronics</button><button class="chip" style="height:32px">Mobiles</button><button class="chip" style="height:32px">Laptops</button><button class="chip" style="height:32px">Cameras</button><button class="chip" style="height:32px">Furniture</button><button class="chip" style="height:32px">Vehicles</button><button class="chip" style="height:32px">Fashion</button><button class="chip" style="height:32px">Home Appliances</button><button class="chip" style="height:32px">Books</button><button class="chip" style="height:32px">Sports</button><button class="chip" style="height:32px">Tools</button><button class="chip" style="height:32px">Gaming</button><button class="chip" style="height:32px">Other</button></div></div>
+<div class="col g8"><span class="label">Distance</span><div class="row wrapf g6"><button class="chip pri-on" style="height:32px">1 km</button><button class="chip pri-on" style="height:32px">5 km</button><button class="chip pri-on on" style="height:32px">10 km</button><button class="chip pri-on" style="height:32px">25 km</button><button class="chip pri-on" style="height:32px">50 km</button></div></div>
+<div class="col g8"><span class="label">Condition</span><div class="row wrapf g6"><button class="chip" style="height:32px">Brand New</button><button class="chip" style="height:32px">Like New</button><button class="chip" style="height:32px">Excellent</button><button class="chip" style="height:32px">Good</button><button class="chip" style="height:32px">Fair</button><button class="chip" style="height:32px">Used</button><button class="chip" style="height:32px">Needs Repair</button></div></div>
+<div class="col g8"><span class="label">Price range</span><div class="row g8"><div class="prefix grow"><span>₹</span><input aria-label="Minimum price" placeholder="Min" inputmode="numeric" value=""></div><span class="muted">–</span><div class="prefix grow"><span>₹</span><input aria-label="Maximum price" placeholder="Max" inputmode="numeric" value=""></div></div></div>
+<div class="row between g12"><span class="col g4" style="gap:0"><span class="label">Verified sellers only</span><span class="hint">Identity-verified accounts</span></span><button class="switch" aria-label="Verified sellers only"></button></div>
+<div class="row between g12"><span class="col g4" style="gap:0"><span class="label">Delivery available</span><span class="hint">Seller allows Dobara delivery</span></span><button class="switch" aria-label="Delivery available"></button></div>
+</aside>
+<div class="col g16" style="min-width:0">
+<div class="row between wrapf g12">
+<div class="col g4" style="gap:2px"><div class="h3">13 results</div><span class="t-sm muted">Nearest first</span></div>
+<div class="row g8 wrapf">
+<button class="btn btn-sec btn-sm show-m"><i class="ic sm i-filter"></i>Filters</button>
+<button class="btn btn-sec btn-sm"><i class="ic sm i-sort"></i>Relevance</button>
+</div>
+</div>
+
+
+<div class="pgrid"><article class="pc">
+<div class="pc-media"><div class="pimg pi-phone"></div><button class="pc-hit" aria-label="Open listing"></button><span class="badge cond pc-cond cd-ex">Excellent</span><button class="pc-heart " aria-label="Save listing"><i class="ic sm i-heart"></i></button><span class="badge b-white pc-del"><i class="ic xs i-scooter c-teal"></i>Delivery</span></div>
+<button class="pc-body">
+<span class="pc-title clamp2">iPhone 14 Pro 256 GB, Deep Purple</span>
+<span class="row g6 wrapf" style="margin-top:2px;row-gap:0"><span class="price">₹64,500</span><span class="t-xs strong c-teal">Negotiable</span></span>
+<span class="pc-meta"><i class="ic xs i-starf star"></i><b style="color:var(--ink2)">4.9</b><span>·</span><span class="clamp1">3.1 km · Noida</span></span>
+<span class="pc-meta">Posted 5h ago</span>
+</button>
+</article><article class="pc">
+<div class="pc-media"><div class="pimg pi-phone"></div><button class="pc-hit" aria-label="Open listing"></button><span class="badge cond pc-cond cd-ln">Like New</span><button class="pc-heart " aria-label="Save listing"><i class="ic sm i-heart"></i></button><span class="badge b-white pc-del"><i class="ic xs i-scooter c-teal"></i>Delivery</span></div>
+<button class="pc-body">
+<span class="pc-title clamp2">iPhone 15 128 GB, Black — 7 months old</span>
+<span class="row g6 wrapf" style="margin-top:2px;row-gap:0"><span class="price">₹49,000</span><span class="t-xs strong c-teal">Negotiable</span></span>
+<span class="pc-meta"><i class="ic xs i-starf star"></i><b style="color:var(--ink2)">4.7</b><span>·</span><span class="clamp1">6.1 km · Noida</span></span>
+<span class="pc-meta">Posted 2h ago</span>
+</button>
+</article><article class="pc">
+<div class="pc-media"><div class="pimg pi-mirrorless"></div><button class="pc-hit" aria-label="Open listing"></button><span class="badge cond pc-cond cd-ln">Like New</span><button class="pc-heart on" aria-label="Save listing"><i class="ic sm i-heartf"></i></button><span class="badge b-white pc-del"><i class="ic xs i-scooter c-teal"></i>Delivery</span></div>
+<button class="pc-body">
+<span class="pc-title clamp2">Sony Alpha A6400 with 16–50mm kit lens</span>
+<span class="row g6 wrapf" style="margin-top:2px;row-gap:0"><span class="price">₹52,000</span><span class="t-xs strong c-teal">Negotiable</span></span>
+<span class="pc-meta"><i class="ic xs i-starf star"></i><b style="color:var(--ink2)">4.7</b><span>·</span><span class="clamp1">6.8 km · Ghaziabad</span></span>
+<span class="pc-meta">Posted 3h ago</span>
+</button>
+</article><article class="pc">
+<div class="pc-media"><div class="pimg pi-tv"></div><button class="pc-hit" aria-label="Open listing"></button><span class="badge cond pc-cond cd-gd">Good</span><button class="pc-heart " aria-label="Save listing"><i class="ic sm i-heart"></i></button><span class="badge b-white pc-del"><i class="ic xs i-scooter c-teal"></i>Delivery</span></div>
+<button class="pc-body">
+<span class="pc-title clamp2">Samsung 43" Crystal 4K Smart TV</span>
+<span class="row g6 wrapf" style="margin-top:2px;row-gap:0"><span class="price">₹17,500</span><span class="t-xs strong c-teal">Negotiable</span></span>
+<span class="pc-meta"><i class="ic xs i-starf star"></i><b style="color:var(--ink2)">4.8</b><span>·</span><span class="clamp1">2.4 km · Noida</span></span>
+<span class="pc-meta">Posted 1d ago</span>
+</button>
+</article><article class="pc">
+<div class="pc-media"><div class="pimg pi-dslr"></div><button class="pc-hit" aria-label="Open listing"></button><span class="badge cond pc-cond cd-ln">Like New</span><button class="pc-heart " aria-label="Save listing"><i class="ic sm i-heart"></i></button><span class="badge b-white pc-del"><i class="ic xs i-scooter c-teal"></i>Delivery</span></div>
+<button class="pc-body">
+<span class="pc-title clamp2">Canon EOS 1500D DSLR with 18–55mm lens</span>
+<span class="row g6 wrapf" style="margin-top:2px;row-gap:0"><span class="price">₹18,000</span><span class="t-xs strong c-teal">Negotiable</span></span>
+<span class="pc-meta"><i class="ic xs i-starf star"></i><b style="color:var(--ink2)">4.8</b><span>·</span><span class="clamp1">2.4 km · Noida</span></span>
+<span class="pc-meta">Posted 2h ago</span>
+</button>
+</article><article class="pc">
+<div class="pc-media"><div class="pimg pi-sofa"></div><button class="pc-hit" aria-label="Open listing"></button><span class="badge cond pc-cond cd-gd">Good</span><button class="pc-heart " aria-label="Save listing"><i class="ic sm i-heart"></i></button><span class="badge b-white pc-del"><i class="ic xs i-scooter c-teal"></i>Delivery</span></div>
+<button class="pc-body">
+<span class="pc-title clamp2">3-seater fabric sofa, slate grey</span>
+<span class="row g6 wrapf" style="margin-top:2px;row-gap:0"><span class="price">₹12,000</span><span class="t-xs strong c-teal">Negotiable</span></span>
+<span class="pc-meta"><i class="ic xs i-starf star"></i><b style="color:var(--ink2)">4.7</b><span>·</span><span class="clamp1">6.8 km · Ghaziabad</span></span>
+<span class="pc-meta">Posted 1d ago</span>
+</button>
+</article><article class="pc">
+<div class="pc-media"><div class="pimg pi-dumbbell"></div><button class="pc-hit" aria-label="Open listing"></button><span class="badge cond pc-cond cd-ln">Like New</span><button class="pc-heart on" aria-label="Save listing"><i class="ic sm i-heartf"></i></button><span class="badge b-white pc-del"><i class="ic xs i-scooter c-teal"></i>Delivery</span></div>
+<button class="pc-body">
+<span class="pc-title clamp2">Adjustable dumbbells, 24 kg pair</span>
+<span class="row g6 wrapf" style="margin-top:2px;row-gap:0"><span class="price">₹7,800</span><span class="t-xs strong c-teal">Negotiable</span></span>
+<span class="pc-meta"><i class="ic xs i-starf star"></i><b style="color:var(--ink2)">4.9</b><span>·</span><span class="clamp1">3.1 km · Noida</span></span>
+<span class="pc-meta">Posted 8h ago</span>
+</button>
+</article><article class="pc">
+<div class="pc-media"><div class="pimg pi-lens"></div><button class="pc-hit" aria-label="Open listing"></button><span class="badge cond pc-cond cd-ex">Excellent</span><button class="pc-heart on" aria-label="Save listing"><i class="ic sm i-heartf"></i></button><span class="badge b-white pc-del"><i class="ic xs i-scooter c-teal"></i>Delivery</span></div>
+<button class="pc-body">
+<span class="pc-title clamp2">Canon EF 50mm f/1.8 STM lens</span>
+<span class="row g6 wrapf" style="margin-top:2px;row-gap:0"><span class="price">₹6,200</span><span class="t-xs strong c-teal">Negotiable</span></span>
+<span class="pc-meta"><i class="ic xs i-starf star"></i><b style="color:var(--ink2)">4.8</b><span>·</span><span class="clamp1">2.4 km · Noida</span></span>
+<span class="pc-meta">Posted 1d ago</span>
+</button>
+</article><article class="pc">
+<div class="pc-media"><div class="pimg pi-desk"></div><button class="pc-hit" aria-label="Open listing"></button><span class="badge cond pc-cond cd-gd">Good</span><button class="pc-heart " aria-label="Save listing"><i class="ic sm i-heart"></i></button><span class="badge b-white pc-del"><i class="ic xs i-scooter c-teal"></i>Delivery</span></div>
+<button class="pc-body">
+<span class="pc-title clamp2">Solid sheesham study table with drawer</span>
+<span class="row g6 wrapf" style="margin-top:2px;row-gap:0"><span class="price">₹6,500</span><span class="t-xs strong c-teal">Negotiable</span></span>
+<span class="pc-meta"><i class="ic xs i-starf star"></i><b style="color:var(--ink2)">4.5</b><span>·</span><span class="clamp1">1.2 km · Noida</span></span>
+<span class="pc-meta">Posted 30m ago</span>
+</button>
+</article><article class="pc">
+<div class="pc-media"><div class="pimg pi-phone"></div><button class="pc-hit" aria-label="Open listing"></button><span class="badge cond pc-cond cd-rp">Needs Repair</span><button class="pc-heart " aria-label="Save listing"><i class="ic sm i-heart"></i></button><span class="badge b-white pc-del"><i class="ic xs i-scooter c-teal"></i>Delivery</span></div>
+<button class="pc-body">
+<span class="pc-title clamp2">Redmi Note 12 — cracked screen, works fine</span>
+<span class="row g6 wrapf" style="margin-top:2px;row-gap:0"><span class="price">₹4,500</span><span class="t-xs strong c-teal">Negotiable</span></span>
+<span class="pc-meta"><i class="ic xs i-starf star"></i><b style="color:var(--ink2)">4.5</b><span>·</span><span class="clamp1">1.2 km · Noida</span></span>
+<span class="pc-meta">Posted 1h ago</span>
+</button>
+</article><article class="pc">
+<div class="pc-media"><div class="pimg pi-drill"></div><button class="pc-hit" aria-label="Open listing"></button><span class="badge cond pc-cond cd-ex">Excellent</span><button class="pc-heart " aria-label="Save listing"><i class="ic sm i-heart"></i></button><span class="badge b-white pc-del"><i class="ic xs i-scooter c-teal"></i>Delivery</span></div>
+<button class="pc-body">
+<span class="pc-title clamp2">Bosch GSB 500W impact drill kit</span>
+<span class="row g6 wrapf" style="margin-top:2px;row-gap:0"><span class="price">₹2,400</span></span>
+<span class="pc-meta"><i class="ic xs i-starf star"></i><b style="color:var(--ink2)">4.5</b><span>·</span><span class="clamp1">1.2 km · Noida</span></span>
+<span class="pc-meta">Posted 4h ago</span>
+</button>
+</article><article class="pc">
+<div class="pc-media"><div class="pimg pi-microwave"></div><button class="pc-hit" aria-label="Open listing"></button><span class="badge cond pc-cond cd-us">Used</span><button class="pc-heart " aria-label="Save listing"><i class="ic sm i-heart"></i></button><span class="badge b-white pc-del"><i class="ic xs i-scooter c-teal"></i>Delivery</span></div>
+<button class="pc-body">
+<span class="pc-title clamp2">Samsung 23 L solo microwave</span>
+<span class="row g6 wrapf" style="margin-top:2px;row-gap:0"><span class="price">₹3,200</span><span class="t-xs strong c-teal">Negotiable</span></span>
+<span class="pc-meta"><i class="ic xs i-starf star"></i><b style="color:var(--ink2)">4.7</b><span>·</span><span class="clamp1">6.8 km · Ghaziabad</span></span>
+<span class="pc-meta">Posted 1d ago</span>
+</button>
+</article><article class="pc">
+<div class="pc-media"><div class="pimg pi-earbuds"></div><button class="pc-hit" aria-label="Open listing"></button><span class="badge cond pc-cond cd-new">Brand New</span><button class="pc-heart " aria-label="Save listing"><i class="ic sm i-heart"></i></button><span class="badge b-white pc-del"><i class="ic xs i-scooter c-teal"></i>Delivery</span></div>
+<button class="pc-body">
+<span class="pc-title clamp2">boAt Airdopes 141 — sealed box</span>
+<span class="row g6 wrapf" style="margin-top:2px;row-gap:0"><span class="price">₹1,299</span></span>
+<span class="pc-meta"><i class="ic xs i-starf star"></i><b style="color:var(--ink2)">4.9</b><span>·</span><span class="clamp1">3.1 km · Noida</span></span>
+<span class="pc-meta">Posted 1h ago</span>
+</button>
+</article></div>
+
+
+
+</div>
+</div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</main>
+
+
+<footer class="site-foot">
+<div class="container" style="padding-top:48px;padding-bottom:8px">
+<div class="foot-grid">
+<div class="col g12 foot-brand">
+<span class="logo" style="color:#fff"><span class="logo-m"></span>dobara</span>
+<p class="t-sm" style="max-width:320px;line-height:1.7">India’s trusted marketplace for pre-loved things. Buy and sell nearby with verified sellers, secure payments and doorstep delivery.</p>
+<div class="col g6 t-sm"><span class="row g8"><i class="ic sm i-mail"></i>support@dobara.in</span><span class="row g8"><i class="ic sm i-phone"></i>1800-120-4410 · 9 AM – 9 PM, all days</span></div>
+</div>
+<div class="col g8"><span class="fh">Buy</span><button class="fl">All categories</button><button class="fl">Items near you</button><button class="fl">My orders</button></div>
+<div class="col g8"><span class="fh">Sell</span><button class="fl">List an item</button><a class="fl" href="Simple_SellerApp.dc.html">My listings</a></div>
+<div class="col g8"><span class="fh">Company</span><button class="fl">About us</button><button class="fl">Contact us</button></div>
+<div class="col g8"><span class="fh">Legal</span><button class="fl">Terms &amp; conditions</button><button class="fl">Privacy policy</button></div>
+</div>
+<div class="foot-bottom" style="margin-top:36px">
+<span>© 2026 Dobara Marketplace Pvt. Ltd. All rights reserved.</span>
+<div class="row wrapf g6"><span class="paychip">UPI</span><span class="paychip">Visa</span><span class="paychip">Mastercard</span><span class="paychip">RuPay</span><span class="paychip">Net banking</span></div>
+</div>
+</div>
+</footer>
+<nav class="tabbar" aria-label="Tabs">
+
+<button class=""><i class="ic i-home"></i>Home</button>
+
+
+<button class=""><i class="ic i-pin"></i>Nearby</button>
+
+
+
+<button aria-label="Sell an item"><span class="sellfab"><i class="ic i-plus"></i></span>Sell</button>
+
+<button class=""><i class="ic i-chat"></i>Chats</button>
+
+
+<button class=""><i class="ic i-user"></i>Account</button>
+
+
+</nav>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+</div>
+</div>
+
+</body></html>

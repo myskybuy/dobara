@@ -1,0 +1,256 @@
+// Dobara — data model (PostgreSQL + Prisma 6)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  city      String?
+  area      String?
+  address   String?
+  isAdmin   Boolean  @default(false)
+  isBlocked Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  sessions        Session[]
+  listings        Listing[]      @relation("SellerListings")
+  buyerChats      Conversation[] @relation("BuyerChats")
+  sellerChats     Conversation[] @relation("SellerChats")
+  messages        Message[]
+  buyerOrders     Order[]        @relation("BuyerOrders")
+  sellerOrders    Order[]        @relation("SellerOrders")
+  reviewsGiven    Review[]       @relation("ReviewFrom")
+  reviewsReceived Review[]       @relation("ReviewTo")
+  complaints      Complaint[]
+  payouts         Payout[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+// One-time codes for email login / sign up
+model EmailOtp {
+  id        String   @id @default(cuid())
+  email     String
+  codeHash  String
+  purpose   String // "login" | "signup"
+  name      String? // for sign up
+  attempts  Int      @default(0)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
+
+enum ListingStatus {
+  PENDING_REVIEW
+  ACTIVE
+  REJECTED
+  SOLD
+}
+
+model Listing {
+  id           String        @id @default(cuid())
+  sellerId     String
+  seller       User          @relation("SellerListings", fields: [sellerId], references: [id], onDelete: Cascade)
+  title        String
+  category     String
+  condition    String
+  price        Int
+  description  String
+  photos       String[] // "/uploads/<file>" or "sprite:<name>" for demo data
+  canPickup    Boolean       @default(true)
+  canDeliver   Boolean       @default(true)
+  city         String
+  area         String
+  status       ListingStatus @default(PENDING_REVIEW)
+  rejectReason String?
+  views        Int           @default(0)
+  createdAt    DateTime      @default(now())
+
+  conversations Conversation[]
+  orders        Order[]
+
+  @@index([status, city])
+}
+
+model Conversation {
+  id          String    @id @default(cuid())
+  listingId   String
+  listing     Listing   @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyerId     String
+  buyer       User      @relation("BuyerChats", fields: [buyerId], references: [id], onDelete: Cascade)
+  sellerId    String
+  seller      User      @relation("SellerChats", fields: [sellerId], references: [id], onDelete: Cascade)
+  agreedPrice Int? // set when an offer is accepted
+  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime  @default(now())
+  messages    Message[]
+  orders      Order[]
+
+  @@unique([listingId, buyerId])
+}
+
+enum MessageType {
+  TEXT
+  OFFER
+  SYSTEM
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  COUNTERED
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  type           MessageType  @default(TEXT)
+  text           String?
+  amount         Int?
+  offerStatus    OfferStatus?
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+enum FulfilMode {
+  PICKUP
+  DELIVERY
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
+  ACCEPTED
+  HANDED_TO_DELIVERY
+  OUT_FOR_DELIVERY
+  READY_FOR_PICKUP
+  DELIVERED
+  COMPLETED
+  ISSUE_REPORTED
+  CANCELLED
+}
+
+model Order {
+  id              String        @id @default(cuid())
+  code            String        @unique
+  listingId       String
+  listing         Listing       @relation(fields: [listingId], references: [id])
+  conversationId  String?
+  conversation    Conversation? @relation(fields: [conversationId], references: [id])
+  buyerId         String
+  buyer           User          @relation("BuyerOrders", fields: [buyerId], references: [id])
+  sellerId        String
+  seller          User          @relation("SellerOrders", fields: [sellerId], references: [id])
+  agreedPrice     Int
+  deliveryFee     Int
+  total           Int
+  mode            FulfilMode
+  address         String?
+  pickupPlace     String?
+  pickupTime      String?
+  courierNote     String?
+  status          OrderStatus   @default(PENDING_PAYMENT)
+  handoverOtp     String
+  razorpayOrderId String?
+  paymentId       String?
+  paymentMode     String? // "razorpay" | "demo"
+  paidAt          DateTime?
+  acceptedAt      DateTime?
+  shippedAt       DateTime?
+  outAt           DateTime?
+  readyAt         DateTime?
+  deliveredAt     DateTime?
+  completedAt     DateTime?
+  cancelledAt     DateTime?
+  createdAt       DateTime      @default(now())
+
+  reviews    Review[]
+  complaints Complaint[]
+  payout     Payout?
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  fromUserId String
+  fromUser   User     @relation("ReviewFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUserId   String
+  toUser     User     @relation("ReviewTo", fields: [toUserId], references: [id], onDelete: Cascade)
+  rating     Int
+  tags       String[]
+  text       String?
+  createdAt  DateTime @default(now())
+
+  @@unique([orderId, fromUserId])
+}
+
+enum ComplaintStatus {
+  OPEN
+  RESOLVED
+}
+
+model Complaint {
+  id        String          @id @default(cuid())
+  orderId   String
+  order     Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reason    String
+  text      String
+  photos    String[]
+  status    ComplaintStatus @default(OPEN)
+  outcome   String? // "refund_buyer" | "release_seller"
+  adminNote String?
+  createdAt DateTime        @default(now())
+}
+
+enum PayoutStatus {
+  PENDING
+  PAID
+}
+
+model Payout {
+  id       String       @id @default(cuid())
+  orderId  String       @unique
+  order    Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  sellerId String
+  seller   User         @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  amount   Int
+  status   PayoutStatus @default(PENDING)
+  paidAt   DateTime?
+  createdAt DateTime    @default(now())
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  topic     String
+  orderCode String?
+  message   String
+  createdAt DateTime @default(now())
+}
