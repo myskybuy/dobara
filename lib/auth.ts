@@ -34,6 +34,11 @@ export async function requireAdmin() {
   return user;
 }
 
+/** Where the "Sell an item" buttons should point: the seller dashboard once approved, otherwise the application form. */
+export function sellerCtaHref(user: CurrentUser | null) {
+  return user && user.sellerStatus === 'APPROVED' ? '/seller/new' : '/seller/apply';
+}
+
 /** Call only from a Server Action or Route Handler (sets a cookie). */
 export async function createSession(userId: string) {
   const token = crypto.randomBytes(32).toString('hex');

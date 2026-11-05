@@ -16,6 +16,9 @@
 .db .opt input[type="radio"], .db .opt input[type="checkbox"] { position: absolute; opacity: 0; pointer-events: none; }
 .db .opt:has(input:checked) { border-color: var(--pri); background: var(--pri-50); }
 .db .opt:has(input:checked) .radio { border-color: var(--pri); border-width: 6px; }
+.db .opt .check i { opacity: 0; }
+.db .opt:has(input[type="checkbox"]:checked) .check { background: var(--pri); border-color: var(--pri); }
+.db .opt:has(input[type="checkbox"]:checked) .check i { opacity: 1; }
 .db label.chip { cursor: pointer; }
 .db label.chip input { position: absolute; opacity: 0; pointer-events: none; }
 .db label.chip:has(input:checked) { background: var(--ink); color: #fff; border-color: var(--ink); }
@@ -30,3 +33,13 @@
 .db .pagination { display: flex; gap: 8px; justify-content: center; margin-top: 16px; }
 .db .tabbar a { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; font-weight: 700; color: var(--ink3); padding: 6px 0; min-height: 48px; text-decoration: none; }
 .db .tabbar a.on { color: var(--pri); }
+
+/* location page */
+.loc-citychips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 8px; -webkit-overflow-scrolling: touch; }
+.loc-areas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; max-height: 460px; overflow-y: auto; padding-right: 4px; }
+.loc-ctabar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 45; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); background: var(--sf); border-top: 1px solid var(--line); }
+@container (max-width: 860px) { .loc-areas { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@container (max-width: 640px) {
+ .loc-areas { grid-template-columns: minmax(0, 1fr); max-height: none; overflow-y: visible; }
+ .loc-page { padding-bottom: 92px; }
+}

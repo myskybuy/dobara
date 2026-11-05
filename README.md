@@ -40,14 +40,22 @@ When you log in, the OTP appears on the "Enter the code" screen and in the termi
 | Role | Email | What to try |
 |---|---|---|
 | Buyer | `aarav@dobara.test` | Chat about the Canon camera → accept Karan's ₹16,500 counter offer → checkout → pay (demo) |
-| Seller | `karan@dobara.test` | `/seller` → new order from Rhea → accept → hand over → enter OTP **4827** |
-| Admin | `admin@dobara.test` | `/admin` → approve or reject the 2 pending listings |
+| Seller (approved) | `karan@dobara.test` | `/seller` → new order from Rhea → accept → hand over → enter OTP **4827** |
+| Buyer with a pending seller application | `manish@dobara.test` | `/seller/apply` → shows "under review" status (already applied in the seed data) |
+| Admin | `admin@dobara.test` | `/admin` → approve/reject listings, approve/reject seller applications, manage users |
 
-Other demo users: `rhea@dobara.test`, `manish@dobara.test`, plus sellers like `rohan@dobara.test` and `priya@dobara.test`.
+Other demo users: `rhea@dobara.test`, plus approved sellers like `rohan@dobara.test` and `priya@dobara.test`.
+
+### Becoming a seller
+
+Anyone can sign up and buy right away. To **sell**, a user applies once at `/seller/apply` (full name, phone, location, what they plan to sell, accept seller terms). An admin then approves or rejects the application from **Admin → Seller approvals** (`/admin/sellers`). Only after approval can the user list items — `/seller/*` and `/seller/new` send unapproved users back to `/seller/apply`, which shows a pending/rejected status message as appropriate. All "Sell an item" buttons across the site point to `/seller/apply` until the user is approved, then to `/seller/new`. Demo sellers in the seed data are pre-approved; `manish@dobara.test` is seeded with a **pending** application so you can see the review flow immediately.
 
 Useful commands:
 
 - `npm run db:reset` — wipe the database and load the demo data again
+- `npm run db:add-sellers` — add the verified demo sellers (3–4 in every area) to an existing database without wiping it; safe to run again
+
+All demo seller logins are listed in `SELLER_LOGINS.md`. Demo accounts use `@dobara.test` addresses, which can't receive email, so in development their OTP is always shown on the Verify screen (even when SMTP is configured).
 - `npx prisma studio` — browse the database in your browser
 - `npm run build && npm start` — production build
 
@@ -88,6 +96,8 @@ Leave both blank to keep using the demo payment screen. It also has a "Simulate 
 
 ### Seller (`/seller`)
 
+Requires an **approved** seller application (see "Becoming a seller" above) — otherwise every `/seller/*` route redirects to `/seller/apply`.
+
 - Home dashboard
 - List an item (one form with photos)
 - My listings
@@ -100,9 +110,10 @@ Leave both blank to keep using the demo payment screen. It also has a "Simulate 
 
 - Dashboard
 - Listing approvals: new listings start as **Pending review**; approve or reject them with a reason
-- Users (block or unblock)
+- Seller approvals: Pending / Approved / Rejected tabs; approve a seller application or reject it with a reason
+- Users: seller status, block or unblock, and a details drawer (their listings, orders, complaints)
 - Orders & payouts (cancel and refund; mark payout paid)
-- Complaints (refund the buyer or release payment to the seller), plus messages from the contact form
+- Complaints (refund the buyer or release payment to the seller), plus messages from the contact form (mark resolved)
 
 ### Website pages
 
@@ -116,7 +127,7 @@ About, Contact (saved to the database), Terms, Privacy and 404.
 app/
   (site)/      buyer website: home, browse, item, chat, checkout, pay, orders, profile, about, contact, terms, privacy
   (auth)/      login, signup, verify (email OTP), location
-  seller/      seller panel
+  seller/      seller panel (apply/ is open to any logged-in user; (dash)/ requires an approved seller)
   admin/       admin panel (users with isAdmin = true)
   api/         chat polling + offers, listing upload, Razorpay order/verify
   actions/     server actions (auth, chat, orders, listings, admin, contact)
@@ -144,3 +155,5 @@ uploads/       uploaded listing photos (local disk)
 1. Set `DATABASE_URL`, `APP_URL`, SMTP and Razorpay **live** keys.
 2. Run `npm run build && npm start` behind Nginx.
 3. Keep the `uploads/` folder on persistent disk.
+#   d o b a r a  
+ 

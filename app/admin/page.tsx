@@ -11,17 +11,19 @@ export const metadata = { title: 'Dashboard' };
 export default async function AdminHome() {
   await requireAdmin();
   const monthAgo = new Date(Date.now() - 30 * 86_400_000);
-  const [users, pendingCount, orders30, complaints, pending, payoutsDue] = await Promise.all([
+  const [users, pendingCount, orders30, complaints, pending, payoutsDue, pendingSellers] = await Promise.all([
     db.user.count(),
     db.listing.count({ where: { status: 'PENDING_REVIEW' } }),
     db.order.count({ where: { status: { notIn: ['PENDING_PAYMENT', 'CANCELLED'] }, createdAt: { gte: monthAgo } } }),
     db.complaint.count({ where: { status: 'OPEN' } }),
     db.listing.findMany({ where: { status: 'PENDING_REVIEW' }, include: { seller: true }, orderBy: { createdAt: 'asc' }, take: 6 }),
     db.payout.aggregate({ where: { status: 'PENDING' }, _sum: { amount: true }, _count: true }),
+    db.user.count({ where: { sellerStatus: 'PENDING' } }),
   ]);
   const kpis = [
     { l: 'Total users', v: users.toLocaleString('en-IN'), ic: 'users', d: 'All accounts', href: '/admin/users' },
     { l: 'Pending approvals', v: String(pendingCount), ic: 'verified', d: 'Listings waiting for review', href: '/admin/listings' },
+    { l: 'Seller applications', v: String(pendingSellers), ic: 'store', d: 'Waiting to become sellers', href: '/admin/sellers' },
     { l: 'Orders (30d)', v: String(orders30), ic: 'package', d: `${payoutsDue._count} payouts due · ${inr(payoutsDue._sum.amount ?? 0)}`, href: '/admin/orders' },
     { l: 'Open complaints', v: String(complaints), ic: 'alert', d: 'Payout on hold for these', href: '/admin/complaints' },
   ];

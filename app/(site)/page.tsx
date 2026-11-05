@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { getLocation, getUser } from '@/lib/auth';
+import { getLocation, getUser, sellerCtaHref } from '@/lib/auth';
 import { CATEGORIES } from '@/lib/constants';
 import { db } from '@/lib/db';
 import { cardSelect, nearbyListings } from '@/lib/listings';
@@ -12,6 +12,7 @@ export default async function HomePage() {
   // Step 2 of the flow: location is asked once, on the first visit.
   if (!loc) redirect('/location?next=/');
   const user = await getUser();
+  const sellHref = sellerCtaHref(user);
 
   const near = await nearbyListings(loc, 8, user?.id);
   const recent = await db.listing.findMany({
@@ -81,7 +82,7 @@ export default async function HomePage() {
           {s.items.length ? (
             <div className="rail">{s.items.map((l) => <ProductCard key={l.id} l={l} />)}</div>
           ) : (
-            <p className="soft">No items in {loc.city} yet. Be the first to <Link href="/seller/new">list something</Link>.</p>
+            <p className="soft">No items in {loc.city} yet. Be the first to <Link href={sellHref}>list something</Link>.</p>
           )}
         </section>
       ))}
@@ -91,7 +92,7 @@ export default async function HomePage() {
           <div className="h3">Got something you no longer use?</div>
           <p className="soft">List it in about two minutes. Buyers nearby can chat, make offers and pay securely.</p>
         </div>
-        <Link className="btn btn-amber btn-lg" href="/seller/new"><Ic n="plus" />Sell an Item</Link>
+        <Link className="btn btn-amber btn-lg" href={sellHref}><Ic n="plus" />Sell an Item</Link>
       </section>
     </div>
   );

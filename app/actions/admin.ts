@@ -39,6 +39,31 @@ export async function markPayoutPaidAction(fd: FormData) {
   redirect('/admin/orders?tab=payouts');
 }
 
+/* ---------- Admin: seller approval ---------- */
+
+export async function approveSellerAction(fd: FormData) {
+  await requireAdmin();
+  const id = str(fd.get('id'));
+  const back = str(fd.get('back')) || '/admin/sellers?tab=APPROVED';
+  await db.user.update({ where: { id }, data: { sellerStatus: 'APPROVED', sellerRejectReason: null } });
+  redirect(back);
+}
+
+export async function rejectSellerAction(fd: FormData) {
+  await requireAdmin();
+  const id = str(fd.get('id'));
+  const reason = str(fd.get('reason')) || 'Does not meet our seller requirements right now.';
+  await db.user.update({ where: { id }, data: { sellerStatus: 'REJECTED', sellerRejectReason: reason } });
+  redirect('/admin/sellers?tab=PENDING');
+}
+
+export async function resolveContactMessageAction(fd: FormData) {
+  await requireAdmin();
+  const id = str(fd.get('id'));
+  await db.contactMessage.update({ where: { id }, data: { resolved: true } });
+  redirect('/admin/complaints?done=1');
+}
+
 export async function resolveComplaintAction(fd: FormData) {
   await requireAdmin();
   const id = str(fd.get('id'));

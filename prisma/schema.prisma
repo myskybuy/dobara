@@ -9,6 +9,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum SellerStatus {
+  NONE
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -19,6 +26,12 @@ model User {
   isAdmin   Boolean  @default(false)
   isBlocked Boolean  @default(false)
   createdAt DateTime @default(now())
+
+  sellerStatus       SellerStatus @default(NONE)
+  sellerPhone        String?
+  sellerNote         String?
+  sellerRejectReason String?
+  sellerAppliedAt    DateTime?
 
   sessions        Session[]
   listings        Listing[]      @relation("SellerListings")
@@ -252,5 +265,6 @@ model ContactMessage {
   topic     String
   orderCode String?
   message   String
+  resolved  Boolean  @default(false)
   createdAt DateTime @default(now())
 }

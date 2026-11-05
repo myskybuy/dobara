@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { getUser, sellerCtaHref } from '@/lib/auth';
 import { LOCATIONS } from '@/lib/constants';
 import { Ic, Photo } from '@/components/ui';
 
@@ -11,7 +12,8 @@ const VALUES = [
   { ic: 'pin', bg: 'var(--green-50)', c: 'var(--green)', t: 'Local first', d: 'Items near you come first, so pickups are short and deliveries are quick.' },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const sellHref = sellerCtaHref(await getUser());
   return (
     <div className="container col" style={{ paddingTop: 32, paddingBottom: 24, gap: 56 }}>
       <section className="page-hero">
@@ -42,7 +44,7 @@ export default function AboutPage() {
       </section>
       <section className="grid2" style={{ gap: 20 }}>
         <div className="card pad-l col g12"><span className="eyebrow c-pri">For buyers</span><b className="t-lg">Buy with confidence</b><span className="t-sm soft">Honest condition grades, chat and offers, and 48 hours to check every item before the seller is paid.</span><Link className="linkbtn" href="/browse">Start browsing<Ic n="chevr" s="sm" /></Link></div>
-        <div className="card pad-l col g12"><span className="eyebrow c-amber">For sellers</span><b className="t-lg">Sell without the hassle</b><span className="t-sm soft">Free to list, buyers pay upfront, and you get the full agreed price once the buyer confirms.</span><Link className="linkbtn" href="/seller/new">List an item<Ic n="chevr" s="sm" /></Link></div>
+        <div className="card pad-l col g12"><span className="eyebrow c-amber">For sellers</span><b className="t-lg">Sell without the hassle</b><span className="t-sm soft">Free to list, buyers pay upfront, and you get the full agreed price once the buyer confirms.</span><Link className="linkbtn" href={sellHref}>List an item<Ic n="chevr" s="sm" /></Link></div>
       </section>
       <section className="card pad-l col g16">
         <div className="col g6"><span className="eyebrow">Where we operate</span><div className="h3">Live in {LOCATIONS.length} cities, growing every month</div></div>
@@ -50,7 +52,7 @@ export default function AboutPage() {
       </section>
       <section className="card pad-l row between wrapf g20" style={{ background: 'var(--amber-50)', borderColor: '#F4DDB5' }}>
         <div className="col g6"><div className="h3">Ready to find something great?</div><span className="soft">Browse what your neighbours are selling, or list something of your own.</span></div>
-        <div className="row g8"><Link className="btn btn-pri btn-lg" href="/browse">Start browsing</Link><Link className="btn btn-amber btn-lg" href="/seller/new"><Ic n="plus" s="sm" />Sell an Item</Link></div>
+        <div className="row g8"><Link className="btn btn-pri btn-lg" href="/browse">Start browsing</Link><Link className="btn btn-amber btn-lg" href={sellHref}><Ic n="plus" s="sm" />Sell an Item</Link></div>
       </section>
     </div>
   );

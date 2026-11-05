@@ -1,7 +1,21 @@
 # PROGRESS — Dobara build
 
-**Current phase:** all phases (0–8) written.
+**Current phase:** all phases (0–8) written, plus Phase 9 (seller approval, admin user drawer, contact resolution, location page redesign).
 **Next step:** run locally (`npm install && npm run setup && npm run dev`) and fix anything that shows up on first run.
+
+## Phase 9 — Seller approval & admin/QA polish
+
+- [x] **Seller approval by admin.**
+  - [x] `/seller/apply` form (full name, phone, location pre-filled, what you'll sell, accept terms) — `app/seller/apply/`
+  - [x] `User.sellerStatus` (NONE/PENDING/APPROVED/REJECTED) + `sellerPhone`/`sellerNote`/`sellerRejectReason`/`sellerAppliedAt` on the schema
+  - [x] `/seller/*` moved under a `(dash)` route group whose layout redirects to `/seller/apply` unless `sellerStatus === 'APPROVED'`; `/seller/apply` itself redirects approved sellers to `/seller`
+  - [x] Admin → Seller approvals (`/admin/sellers`): Pending/Approved/Rejected tabs, approve or reject with a reason, drawer with application details; sidebar badge + dashboard KPI for pending count
+  - [x] "Sell an item" buttons (header, footer, tab bars, home, about) resolve to `/seller/apply` or `/seller/new` via `sellerCtaHref(user)` in `lib/auth.ts`
+  - [x] Seed: existing demo sellers are `APPROVED`; `manish@dobara.test` seeded as a `PENDING` application for the demo
+- [x] **User management.** Admin → Users shows seller status + a details drawer (that user's listings, orders, complaints)
+- [x] **Contact message resolution.** `ContactMessage.resolved`; "Mark resolved" button on Admin → Complaints
+- [x] **Location page redesign.** City chips (filter), full-width search, responsive area grid (1/2/3 columns), sticky "Continue" bar on mobile
+- [x] `npx tsc --noEmit`, `npm run build` and `npm run db:reset` all pass after these changes
 
 ## Checklist
 
@@ -47,6 +61,8 @@
 - Payment is atomic: if two buyers pay at the same moment, only the first gets the item; the second order is cancelled (refund).
 - Seller decline / admin cancel puts the listing back live and resets the agreed price in chat.
 - All dates are shown in India time (Asia/Kolkata).
+- `app/seller/(dash)/` is a route group so its layout (which requires `sellerStatus === 'APPROVED'`) doesn't wrap `/seller/apply`, avoiding a redirect loop; `/seller/apply` has its own small layout instead.
+- On this Next.js version, a `redirect()` during a full-page Server Component render returns **HTTP 200** with the original route's HTML plus a `<meta http-equiv="refresh">` tag (and a flight-payload marker) rather than a classic 307 — curl/no-JS tools won't visibly follow it, but every real browser does immediately. Don't mistake that for a broken redirect when testing with curl.
 
 ## Not built (out of scope by request)
 

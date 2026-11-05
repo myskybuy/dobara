@@ -46,9 +46,24 @@ async function main() {
     const { area, city } = splitArea(s.area);
     const email = emailOf(s.name);
     const existing = await db.user.findUnique({ where: { email } });
-    const u = existing ?? (await db.user.create({ data: { email, name: s.name, city, area, createdAt: ago(60 * 24 * (300 + Object.keys(sellers).length * 40)) } }));
+    const u = existing ?? (await db.user.create({
+      data: {
+        email, name: s.name, city, area, createdAt: ago(60 * 24 * (300 + Object.keys(sellers).length * 40)),
+        sellerStatus: 'APPROVED', sellerPhone: '98' + String(10000000 + Object.keys(sellers).length).slice(-8), sellerNote: s.bio, sellerAppliedAt: ago(60 * 24 * (290 + Object.keys(sellers).length * 40)),
+      },
+    }));
     sellers[key] = u.id;
   }
+
+  // One buyer applying to become a seller — shows the pending-approval demo flow
+  await db.user.update({
+    where: { id: manish.id },
+    data: {
+      sellerStatus: 'PENDING', sellerPhone: '9811022334',
+      sellerNote: 'I want to sell a few old kitchen appliances and a study table I no longer need.',
+      sellerAppliedAt: ago(90),
+    },
+  });
 
   console.log('Creating listings…');
   const listingIds: Record<string, string> = {};

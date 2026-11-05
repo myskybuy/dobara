@@ -1,8 +1,10 @@
 import type { ReactNode } from 'react';
+import { getUser, sellerCtaHref } from '@/lib/auth';
 import { SiteFooter, SiteHeader } from '@/components/SiteHeader';
 import { TabBar } from '@/components/TabBar';
 
-export default function SiteLayout({ children }: { children: ReactNode }) {
+export default async function SiteLayout({ children }: { children: ReactNode }) {
+  const sellHref = sellerCtaHref(await getUser());
   return (
     <>
       <SiteHeader />
@@ -11,7 +13,7 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
       <TabBar items={[
         { href: '/', label: 'Home', icon: 'home' },
         { href: '/browse', label: 'Browse', icon: 'search' },
-        { href: '/seller/new', label: 'Sell', icon: 'plus', fab: true },
+        { href: sellHref, label: 'Sell', icon: 'plus', fab: true },
         { href: '/chat', label: 'Chats', icon: 'chat' },
         { href: '/profile', label: 'Account', icon: 'user' },
       ]} />

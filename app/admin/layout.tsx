@@ -10,18 +10,20 @@ export const metadata = { title: { default: 'Admin', template: '%s · Dobara Adm
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const user = await requireAdmin();
-  const [pending, complaints] = await Promise.all([
+  const [pending, complaints, pendingSellers] = await Promise.all([
     db.listing.count({ where: { status: 'PENDING_REVIEW' } }),
     db.complaint.count({ where: { status: 'OPEN' } }),
+    db.user.count({ where: { sellerStatus: 'PENDING' } }),
   ]);
   const items = [
     { href: '/admin', label: 'Dashboard', icon: 'grid', section: 'Overview' },
     { href: '/admin/listings', label: 'Listing approvals', icon: 'tag', badge: pending, section: 'Manage' },
+    { href: '/admin/sellers', label: 'Seller approvals', icon: 'store', badge: pendingSellers },
     { href: '/admin/users', label: 'Users', icon: 'users' },
     { href: '/admin/orders', label: 'Orders & payouts', icon: 'package' },
     { href: '/admin/complaints', label: 'Complaints', icon: 'alert', badge: complaints },
   ];
-  const titles: [string, string][] = [['/admin/listings', 'Listing approvals'], ['/admin/users', 'Users'], ['/admin/orders', 'Orders & payouts'], ['/admin/complaints', 'Complaints'], ['/admin', 'Dashboard']];
+  const titles: [string, string][] = [['/admin/listings', 'Listing approvals'], ['/admin/sellers', 'Seller approvals'], ['/admin/users', 'Users'], ['/admin/orders', 'Orders & payouts'], ['/admin/complaints', 'Complaints'], ['/admin', 'Dashboard']];
   return (
     <div className="dash-shell">
       <aside className="side" aria-label="Admin navigation" style={{ gap: 0 }}>
@@ -39,6 +41,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         <TabBar items={[
           { href: '/admin', label: 'Home', icon: 'grid' },
           { href: '/admin/listings', label: 'Listings', icon: 'tag' },
+          { href: '/admin/sellers', label: 'Sellers', icon: 'store' },
           { href: '/admin/users', label: 'Users', icon: 'users' },
           { href: '/admin/orders', label: 'Orders', icon: 'package' },
           { href: '/admin/complaints', label: 'Complaints', icon: 'alert' },

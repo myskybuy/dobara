@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { CATEGORIES } from '@/lib/constants';
-import { getLocation, getUser } from '@/lib/auth';
+import { getLocation, getUser, sellerCtaHref } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { Ic } from './ui';
 import { AccountMenu } from './AccountMenu';
@@ -20,6 +20,7 @@ export async function SiteHeader({ activeCat }: { activeCat?: string }) {
   const user = await getUser();
   const loc = await getLocation();
   const unread = user ? await unreadCount(user.id) : 0;
+  const sellHref = sellerCtaHref(user);
 
   return (
     <header className="top">
@@ -43,14 +44,14 @@ export async function SiteHeader({ activeCat }: { activeCat?: string }) {
             <button className="btn btn-pri btn-sm" type="submit">Search</button>
           </form>
           <div className="row g4">
-            <Link className="btn btn-amber hide-m" href="/seller/new"><Ic n="plus" s="sm" />Sell an Item</Link>
+            <Link className="btn btn-amber hide-m" href={sellHref}><Ic n="plus" s="sm" />Sell an Item</Link>
             {user ? (
               <>
                 <Link className="icon-btn hide-m" aria-label="Chats" href="/chat" style={{ position: 'relative' }}>
                   <Ic n="chat" />
                   {unread > 0 && <span className="dotn">{unread > 9 ? '9+' : unread}</span>}
                 </Link>
-                <AccountMenu name={user.name} email={user.email} isAdmin={user.isAdmin} />
+                <AccountMenu name={user.name} email={user.email} isAdmin={user.isAdmin} sellerDashHref={user.sellerStatus === 'APPROVED' ? '/seller' : '/seller/apply'} />
               </>
             ) : (
               <Link className="btn btn-pri" href="/login">Log in</Link>
@@ -72,7 +73,8 @@ export async function SiteHeader({ activeCat }: { activeCat?: string }) {
   );
 }
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const sellHref = sellerCtaHref(await getUser());
   return (
     <footer className="site-foot">
       <div className="container" style={{ paddingTop: 48, paddingBottom: 8 }}>
@@ -88,7 +90,7 @@ export function SiteFooter() {
             </div>
           </div>
           <div className="col g8"><span className="fh">Buy</span><Link className="fl" href="/browse">All categories</Link><Link className="fl" href="/browse?sort=nearby">Items near you</Link><Link className="fl" href="/orders">My orders</Link></div>
-          <div className="col g8"><span className="fh">Sell</span><Link className="fl" href="/seller/new">List an item</Link><Link className="fl" href="/seller/listings">My listings</Link></div>
+          <div className="col g8"><span className="fh">Sell</span><Link className="fl" href={sellHref}>List an item</Link><Link className="fl" href="/seller/listings">My listings</Link></div>
           <div className="col g8"><span className="fh">Company</span><Link className="fl" href="/about">About us</Link><Link className="fl" href="/contact">Contact us</Link></div>
           <div className="col g8"><span className="fh">Legal</span><Link className="fl" href="/terms">Terms &amp; conditions</Link><Link className="fl" href="/privacy">Privacy policy</Link></div>
         </div>

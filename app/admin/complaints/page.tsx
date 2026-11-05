@@ -1,4 +1,4 @@
-import { resolveComplaintAction } from '@/app/actions/admin';
+import { resolveComplaintAction, resolveContactMessageAction } from '@/app/actions/admin';
 import { requireAdmin } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { fmtDateTime, inr } from '@/lib/format';
@@ -55,9 +55,18 @@ export default async function AdminComplaintsPage({ searchParams }: { searchPara
         <div className="card" style={{ overflow: 'hidden' }}>
           {contact.map((m) => (
             <div key={m.id} className="col g4" style={{ padding: '14px 16px', borderTop: '1px solid var(--line2)' }}>
-              <span className="row between g8"><b className="t-sm">{m.name} · {m.email}</b><span className="t-xs muted">{fmtDateTime(m.createdAt)}</span></span>
+              <span className="row between g8 wrapf">
+                <b className="t-sm">{m.name} · {m.email}</b>
+                <span className="row g8"><span className="t-xs muted">{fmtDateTime(m.createdAt)}</span><span className={'badge ' + (m.resolved ? 'b-green' : 'b-amber')}>{m.resolved ? 'Resolved' : 'Open'}</span></span>
+              </span>
               <span className="t-xs muted">{m.topic}{m.orderCode ? ' · ' + m.orderCode : ''}</span>
               <span className="t-sm soft">{m.message}</span>
+              {!m.resolved && (
+                <form action={resolveContactMessageAction}>
+                  <input type="hidden" name="id" value={m.id} />
+                  <button className="btn btn-sec btn-xs" type="submit">Mark resolved</button>
+                </form>
+              )}
             </div>
           ))}
         </div>

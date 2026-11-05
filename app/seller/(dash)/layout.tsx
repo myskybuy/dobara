@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { requireUser } from '@/lib/auth';
 import { db } from '@/lib/db';
@@ -10,6 +11,7 @@ export const metadata = { title: { default: 'Seller', template: '%s · Dobara Se
 
 export default async function SellerLayout({ children }: { children: ReactNode }) {
   const user = await requireUser('/seller');
+  if (user.sellerStatus !== 'APPROVED') redirect('/seller/apply');
   const [pendingOffers, newOrders] = await Promise.all([
     db.message.count({ where: { type: 'OFFER', offerStatus: 'PENDING', senderId: { not: user.id }, conversation: { sellerId: user.id } } }),
     db.order.count({ where: { sellerId: user.id, status: 'PAID' } }),
