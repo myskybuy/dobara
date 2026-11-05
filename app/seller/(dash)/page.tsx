@@ -27,24 +27,33 @@ export default async function SellerHome() {
   const hour = parseInt(new Date().toLocaleString('en-IN', { hour: 'numeric', hour12: false, timeZone: 'Asia/Kolkata' }), 10);
   const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   const kpis = [
-    { l: 'Active listings', v: String(active), ic: 'tag', d: 'Live for buyers', href: '/seller/listings' },
-    { l: 'New orders', v: String(newOrders), ic: 'package', d: newOrders ? 'Accept them soon' : 'Nothing new', href: '/seller/orders' },
-    { l: 'Pending payout', v: inr(pendingPayout._sum.amount ?? 0), ic: 'wallet', d: 'Paid after buyer confirms', href: '/seller/earnings' },
-    { l: 'Average rating', v: stats.reviews ? stats.rating.toFixed(1) : '—', ic: 'star', d: `${stats.reviews} reviews`, href: '/seller/reviews' },
+    { l: 'Active listings', v: String(active), ic: 'tag', d: 'Live for buyers', href: '/seller/listings', tone: 't-k-pri' },
+    { l: 'New orders', v: String(newOrders), ic: 'package', d: newOrders ? 'Accept them soon' : 'Nothing new', href: '/seller/orders', tone: 't-k-amber' },
+    { l: 'Pending payout', v: inr(pendingPayout._sum.amount ?? 0), ic: 'wallet', d: 'Paid after buyer confirms', href: '/seller/earnings', tone: 't-k-teal' },
+    { l: 'Average rating', v: stats.reviews ? stats.rating.toFixed(1) : '—', ic: 'star', d: `${stats.reviews} review${stats.reviews === 1 ? '' : 's'} · ${stats.deals} deal${stats.deals === 1 ? '' : 's'}`, href: '/seller/reviews', tone: 't-k-violet' },
   ];
 
   return (
     <div className="col g24">
-      <div className="row between wrapf g12">
-        <div className="col g4" style={{ gap: 0 }}><div className="h2">{greet}, {user.name.split(' ')[0]}</div><span className="soft">Here’s how your listings are doing today.</span></div>
-        <Link className="btn btn-pri btn-sm show-m" href="/seller/new"><Ic n="plus" s="sm" />Add</Link>
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(190px,1fr))', gap: 14 }}>
+      <section className="t-welcome">
+        <div className="t-welcome-txt">
+          <span className="t-pill"><Ic n="verified" s="xs" />Verified seller · {user.area}, {user.city}</span>
+          <div className="h2">{greet}, {user.name.split(' ')[0]}</div>
+          <p>Here’s how your listings are doing today.</p>
+          <div className="row wrapf g8" style={{ marginTop: 4 }}>
+            <Link className="btn btn-amber btn-sm" href="/seller/new"><Ic n="plus" s="sm" />List an item</Link>
+            <Link className="btn btn-sm" href="/seller/listings" style={{ background: 'rgba(255,255,255,.12)', color: '#fff' }}>My listings</Link>
+          </div>
+        </div>
+        <div className="t-welcome-img" style={{ backgroundImage: 'url(/demo/seller.jpg)' }} />
+      </section>
+      <div className="t-kpis">
         {kpis.map((k) => (
-          <Link key={k.l} className="card stat" href={k.href} style={{ color: 'inherit' }}>
-            <span className="row between"><span className="t-sm muted">{k.l}</span><Ic n={k.ic} s="sm" className="c-pri" /></span>
+          <Link key={k.l} className={'t-kpi ' + k.tone} href={k.href}>
+            <span className="t-kpi-ic"><Ic n={k.ic} /></span>
+            <span className="t-sm muted strong">{k.l}</span>
             <span className="stat-v">{k.v}</span>
-            <span className="delta muted">{k.d}</span>
+            <span className="t-xs muted">{k.d}</span>
           </Link>
         ))}
       </div>

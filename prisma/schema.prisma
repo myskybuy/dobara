@@ -73,6 +73,7 @@ model EmailOtp {
 enum ListingStatus {
   PENDING_REVIEW
   ACTIVE
+  RESERVED // a buyer and the seller agreed a price — hidden from everyone else until the order is placed or the deal is cancelled
   REJECTED
   SOLD
 }

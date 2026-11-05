@@ -2,7 +2,13 @@
 .db a.btn, .db a.btn:hover { text-decoration: none; }
 .db a.btn-pri, .db a.btn-pri:hover { color: #fff; }
 .db a.btn-amber, .db a.btn-amber:hover { color: #2A1A00; }
-.db a.btn-sec, .db a.btn-ghost, .db a.menu-i, .db a.logo, .db a.cat, .db a.tab, .db a.chip, .db a.acct-btn, .db a.locbtn, .db a.icon-btn { color: var(--ink); text-decoration: none; }
+.db a.btn-sec, .db a.btn-ghost, .db a.menu-i, .db a.logo, .db a.acct-btn, .db a.locbtn, .db a.icon-btn { color: var(--ink); text-decoration: none; }
+/* .cat / .tab / .chip already set their own color for every state (default, hover, .on) in dobara.css —
+   only neutralise the link underline here, don't force a color or it clobbers the .on/selected state. */
+.db a.cat, .db a.tab, .db a.chip { text-decoration: none; }
+/* Selected chip has a dark background, so its label must stay white in every state
+   (link, hover, visited) — otherwise the text disappears into the background. */
+.db .chip.on, .db a.chip.on, .db a.chip.on:hover, .db a.chip.on:visited { color: #fff; }
 .db a.side-link { color: var(--ink2); text-decoration: none; }
 .db a.side-link.on { color: var(--pri-ink); }
 .db a.fl { color: #AEB3C2; text-decoration: none; }

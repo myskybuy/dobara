@@ -16,6 +16,36 @@ export const CATEGORIES = [
   { key: 'other', label: 'Other', icon: 'grid' },
 ] as const;
 
+/** Icon tile colours per category: [background, foreground]. */
+export const CATEGORY_COLORS: Record<string, [string, string]> = {
+  electronics: ['#EAF1FF', '#1F5F99'],
+  mobiles: ['#F0EFFD', '#3B35C3'],
+  laptops: ['#E8F6F4', '#0B7A6C'],
+  cameras: ['#FDF3E2', '#9A5A00'],
+  furniture: ['#F6EEE6', '#9A4F1B'],
+  vehicles: ['#FBEAEA', '#C0342F'],
+  fashion: ['#FCEBF3', '#A3326A'],
+  appliances: ['#E4F3EA', '#1B7F45'],
+  books: ['#F3EEFE', '#6A3FC8'],
+  sports: ['#E6F6FB', '#0E7490'],
+  tools: ['#F1F2F5', '#444A5D'],
+  gaming: ['#EEF0FF', '#4338CA'],
+  other: ['#F3F5F9', '#626879'],
+};
+
+/** Cover photos for city tiles (public/demo). */
+export const CITY_PHOTOS: Record<string, string> = {
+  Noida: '/demo/city-noida.jpg',
+  Delhi: '/demo/city-delhi.jpg',
+  Ghaziabad: '/demo/city-ghaziabad.jpg',
+  Gurgaon: '/demo/city-gurgaon.jpg',
+  Mumbai: '/demo/city-mumbai.jpg',
+  Bangalore: '/demo/city-bangalore.jpg',
+  Pune: '/demo/city-pune.jpg',
+  Hyderabad: '/demo/city-hyderabad.jpg',
+  Jaipur: '/demo/city-jaipur.jpg',
+};
+
 export function categoryLabel(key: string) {
   return CATEGORIES.find((c) => c.key === key)?.label ?? 'Other';
 }
@@ -80,6 +110,7 @@ export const ORDER_STATUS_BADGE: Record<string, string> = {
 export const LISTING_STATUS_LABEL: Record<string, string> = {
   PENDING_REVIEW: 'Pending review',
   ACTIVE: 'Active',
+  RESERVED: 'Reserved',
   REJECTED: 'Rejected',
   SOLD: 'Sold',
 };
@@ -87,9 +118,13 @@ export const LISTING_STATUS_LABEL: Record<string, string> = {
 export const LISTING_STATUS_BADGE: Record<string, string> = {
   PENDING_REVIEW: 'b-amber',
   ACTIVE: 'b-green',
+  RESERVED: 'b-pri',
   REJECTED: 'b-red',
   SOLD: 'b-gray',
 };
+
+/** How the buyer pays. `cod` = cash / UPI to the seller at handover (Dobara holds nothing). */
+export const PAYMENT_LABEL: Record<string, string> = { razorpay: 'Paid online (Razorpay)', demo: 'Paid online (demo)', cod: 'Cash on delivery' };
 
 export const REVIEW_TAGS_FOR_SELLER = ['As described', 'Quick replies', 'Well packed', 'On time', 'Friendly', 'Fair price'];
 export const REVIEW_TAGS_FOR_BUYER = ['Paid on time', 'Clear communication', 'Punctual', 'Friendly'];

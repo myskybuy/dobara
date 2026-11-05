@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { db } from './db';
-import { sendMail, smtpConfigured } from './mail';
+import { isUndeliverable, sendMail, smtpConfigured } from './mail';
 
 const OTP_TTL_MIN = 10;
 const MAX_ATTEMPTS = 5;
@@ -16,7 +16,7 @@ export function isEmail(e: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
 }
 
-/** Creates a 6-digit code, stores its hash and emails it. Returns the code only in dev mode (no SMTP). */
+/** Creates a 6-digit code, stores its hash and emails it. Returns the code only in dev mode (no SMTP, or a demo @*.test address). */
 export async function createAndSendOtp(email: string, purpose: 'login' | 'signup', name?: string) {
   const code = randomDigits(6);
   await db.emailOtp.updateMany({ where: { email, usedAt: null }, data: { usedAt: new Date() } }); // old codes stop working
@@ -27,7 +27,8 @@ export async function createAndSendOtp(email: string, purpose: 'login' | 'signup
   const text = `Your Dobara verification code is ${code}.\nIt expires in ${OTP_TTL_MIN} minutes. If you did not request it, you can ignore this email.`;
   const html = `<div style="font-family:Arial,sans-serif;font-size:15px;color:#161A27"><p>Your Dobara verification code is</p><p style="font-size:30px;font-weight:700;letter-spacing:6px;color:#3B35C3">${code}</p><p>It expires in ${OTP_TTL_MIN} minutes. If you did not request it, you can ignore this email.</p></div>`;
   await sendMail(email, subject, text, html);
-  return smtpConfigured() || process.env.NODE_ENV === 'production' ? null : code;
+  if (process.env.NODE_ENV === 'production') return null;
+  return !smtpConfigured() || isUndeliverable(email) ? code : null;
 }
 
 export type OtpCheck = { ok: true; purpose: string; name: string | null } | { ok: false; error: string };

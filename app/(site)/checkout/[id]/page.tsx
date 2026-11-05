@@ -17,7 +17,7 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
   const user = await requireUser('/checkout/' + id);
   const c = await db.conversation.findUnique({ where: { id }, include: { listing: true, seller: true } });
   if (!c || c.buyerId !== user.id) notFound();
-  if (c.agreedPrice == null || c.listing.status !== 'ACTIVE') redirect('/chat/' + id);
+  if (c.agreedPrice == null || !['ACTIVE', 'RESERVED'].includes(c.listing.status)) redirect('/chat/' + id);
   const pending = await db.order.findFirst({ where: { conversationId: id, status: 'PENDING_PAYMENT' } });
   const l = c.listing;
   const defMode = pending?.mode ?? (l.canDeliver ? 'DELIVERY' : 'PICKUP');

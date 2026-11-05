@@ -11,31 +11,43 @@ export const metadata = { title: 'Seller approvals' };
 const TABS = ['PENDING', 'APPROVED', 'REJECTED'] as const;
 const TAB_LABEL: Record<(typeof TABS)[number], string> = { PENDING: 'Pending', APPROVED: 'Approved', REJECTED: 'Rejected' };
 const COLS = 'minmax(0,2fr) 1.2fr 1.4fr 1fr 120px';
+const PAGE_SIZE = 50;
 const REASONS = ['Phone number could not be verified', 'Incomplete or unclear seller note', 'Suspicious or duplicate application', 'Does not meet our seller requirements'];
 
-type SP = Promise<{ tab?: string; view?: string }>;
+type SP = Promise<{ tab?: string; q?: string; page?: string; view?: string }>;
 
 export default async function AdminSellersPage({ searchParams }: { searchParams: SP }) {
   const sp = await searchParams;
   await requireAdmin();
   const tab = (TABS as readonly string[]).includes(sp.tab || '') ? (sp.tab as (typeof TABS)[number]) : 'PENDING';
   const where: Prisma.UserWhereInput = { sellerStatus: tab };
+  if (sp.q) where.OR = ['name', 'email', 'city', 'area'].map((f) => ({ [f]: { contains: sp.q, mode: 'insensitive' } }));
+  const total = await db.user.count({ where });
+  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const page = Math.min(pages, Math.max(1, Number(sp.page) || 1));
   const [rows, counts] = await Promise.all([
-    db.user.findMany({ where, orderBy: { sellerAppliedAt: tab === 'PENDING' ? 'asc' : 'desc' }, take: 100 }),
+    db.user.findMany({ where, orderBy: [{ sellerAppliedAt: tab === 'PENDING' ? 'asc' : 'desc' }, { id: 'asc' }], skip: (page - 1) * PAGE_SIZE, take: PAGE_SIZE }),
     db.user.groupBy({ by: ['sellerStatus'], _count: true }),
   ]);
   const countOf = (s: string) => counts.find((c) => c.sellerStatus === s)?._count ?? 0;
   const view = sp.view ? await db.user.findUnique({ where: { id: sp.view }, include: { _count: { select: { listings: true, buyerOrders: true, sellerOrders: true } } } }) : null;
-  const here = `/admin/sellers?tab=${tab}`;
+  const list = `/admin/sellers?tab=${tab}${sp.q ? '&q=' + encodeURIComponent(sp.q) : ''}`;
+  const here = list + (page > 1 ? `&page=${page}` : '');
 
   return (
     <div className="col g16">
       <div className="col" style={{ gap: 0 }}><div className="h2">Seller approvals</div><span className="soft">{countOf('PENDING')} waiting · {countOf('APPROVED')} approved · {countOf('REJECTED')} rejected</span></div>
-      <div className="row wrapf g6">
+      <div className="row wrapf g8">
+        <form className="inwrap" style={{ minWidth: 260, flex: 1, maxWidth: 380 }} action="/admin/sellers">
+          <input type="hidden" name="tab" value={tab} />
+          <Ic n="search" s="sm" /><input className="input" style={{ height: 40 }} name="q" defaultValue={sp.q || ''} aria-label="Search sellers" placeholder="Search name, email or location" />
+        </form>
+        <div className="row wrapf g6">
         {TABS.map((t) => <Link key={t} className={'chip' + (t === tab ? ' on' : '')} style={{ height: 34 }} href={`/admin/sellers?tab=${t}`}>{TAB_LABEL[t]}<span className="t-xs" style={{ opacity: 0.7 }}>{countOf(t)}</span></Link>)}
+        </div>
       </div>
       {rows.length === 0 ? (
-        <Empty icon="store" title={`No ${TAB_LABEL[tab].toLowerCase()} applications`} text="New seller applications will show up here for review." />
+        <Empty icon="store" title={sp.q ? 'No matching sellers' : `No ${TAB_LABEL[tab].toLowerCase()} applications`} text={sp.q ? 'Try a different name, email or area.' : 'New seller applications will show up here for review.'} />
       ) : (
         <div className="card" style={{ overflow: 'hidden' }}>
           <div className="dt-scroll"><div className="dt-inner">
@@ -50,6 +62,13 @@ export default async function AdminSellersPage({ searchParams }: { searchParams:
               </div>
             ))}
           </div></div>
+        </div>
+      )}
+      {pages > 1 && (
+        <div className="row g8" style={{ justifyContent: 'center' }}>
+          {page > 1 && <Link className="btn btn-sec btn-sm" href={`${list}&page=${page - 1}`}><Ic n="chevl" s="sm" />Previous</Link>}
+          <span className="t-sm muted" style={{ alignSelf: 'center' }}>Page {page} of {pages}</span>
+          {page < pages && <Link className="btn btn-sec btn-sm" href={`${list}&page=${page + 1}`}>Next<Ic n="chevr" s="sm" /></Link>}
         </div>
       )}
 

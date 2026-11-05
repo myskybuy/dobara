@@ -31,7 +31,7 @@ export default async function AboutPage() {
           <p className="soft" style={{ fontSize: 15.5, lineHeight: 1.75 }}>Dobara fixes the parts that make second-hand risky. Payments are held until the buyer has the item and every handover is confirmed with a one-time code — so both sides can focus on a fair deal.</p>
         </div>
         <div className="grid2 keep2" style={{ gap: 12 }}>
-          {['desk', 'lens', 'tv', 'chair'].map((p) => <div key={p} style={{ borderRadius: 16, overflow: 'hidden', border: '1px solid var(--line)' }}><Photo src={'sprite:' + p} /></div>)}
+          {['office-setup', 'lens', 'tv', 'sofa'].map((p) => <div key={p} style={{ borderRadius: 16, overflow: 'hidden', border: '1px solid var(--line)' }}><Photo src={'/demo/' + p + '.jpg'} alt="" /></div>)}
         </div>
       </section>
       <section className="col g20">

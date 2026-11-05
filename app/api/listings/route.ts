@@ -42,7 +42,7 @@ export async function POST(req: Request) {
 
   const existing = id ? await db.listing.findUnique({ where: { id } }) : null;
   if (id && (!existing || existing.sellerId !== user.id)) return go('/seller/listings');
-  if (existing?.status === 'SOLD') return go('/seller/listings');
+  if (existing?.status === 'SOLD' || existing?.status === 'RESERVED') return go('/seller/listings');
   if (!existing && files.length === 0) return back('Please add at least one photo.');
 
   const photos = files.length ? await Promise.all(files.map(savePhoto)) : existing!.photos;

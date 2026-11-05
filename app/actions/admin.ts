@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/auth';
 import { str } from '@/lib/format';
-import { cancelOrder, completeOrder } from '@/lib/orders';
+import { cancelOrder, completeOrder, isCod } from '@/lib/orders';
 
 export async function toggleBlockAction(fd: FormData) {
   const admin = await requireAdmin();
@@ -15,7 +15,7 @@ export async function toggleBlockAction(fd: FormData) {
     await db.user.update({ where: { id }, data: { isBlocked: !u.isBlocked } });
     if (!u.isBlocked) {
       await db.session.deleteMany({ where: { userId: id } }); // log them out
-      await db.listing.updateMany({ where: { sellerId: id, status: { in: ['ACTIVE', 'PENDING_REVIEW'] } }, data: { status: 'REJECTED', rejectReason: 'Seller account blocked' } });
+      await db.listing.updateMany({ where: { sellerId: id, status: { in: ['ACTIVE', 'RESERVED', 'PENDING_REVIEW'] } }, data: { status: 'REJECTED', rejectReason: 'Seller account blocked' } });
     }
   }
   redirect('/admin/users' + (str(fd.get('q')) ? '?q=' + encodeURIComponent(str(fd.get('q'))) : ''));
@@ -27,7 +27,7 @@ export async function adminCancelOrderAction(fd: FormData) {
   const id = str(fd.get('id'));
   const o = await db.order.findUnique({ where: { id } });
   if (o && !['COMPLETED', 'CANCELLED', 'PENDING_PAYMENT'].includes(o.status)) {
-    await cancelOrder(id, 'cancelled by Dobara support. The payment will be refunded.');
+    await cancelOrder(id, 'cancelled by Dobara support.' + (isCod(o) ? '' : ' The payment will be refunded.'));
   }
   redirect('/admin/orders');
 }
@@ -44,7 +44,8 @@ export async function markPayoutPaidAction(fd: FormData) {
 export async function approveSellerAction(fd: FormData) {
   await requireAdmin();
   const id = str(fd.get('id'));
-  const back = str(fd.get('back')) || '/admin/sellers?tab=APPROVED';
+  const raw = str(fd.get('back'));
+  const back = /^\/admin(\/|\?|$)/.test(raw) ? raw : '/admin/sellers?tab=APPROVED';
   await db.user.update({ where: { id }, data: { sellerStatus: 'APPROVED', sellerRejectReason: null } });
   redirect(back);
 }

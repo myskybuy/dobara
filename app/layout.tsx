@@ -8,6 +8,9 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { width: 'device-width', initialScale: 1 };
 
+/** Bump this after editing public/dobara.css, public/app.css or public/theme.css so browsers fetch the new file. */
+const CSS_VERSION = '8';
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en-IN">
@@ -15,9 +18,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" />
-        {/* Design system from the UI kit — kept as-is so every screen matches the design. */}
-        <link rel="stylesheet" href="/dobara.css" />
-        <link rel="stylesheet" href="/app.css" />
+        {/* Design system from the UI kit — kept as-is so every screen matches the design.
+            ?v= is a cache-buster: bump it whenever you edit these files, so browsers don't keep an old copy. */}
+        <link rel="stylesheet" href={`/dobara.css?v=${CSS_VERSION}`} />
+        <link rel="stylesheet" href={`/app.css?v=${CSS_VERSION}`} />
+        {/* Theme layer: colour, depth and imagery on top of the design system (additive only). */}
+        <link rel="stylesheet" href={`/theme.css?v=${CSS_VERSION}`} />
       </head>
       <body>
         <div className="db">

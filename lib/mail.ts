@@ -2,12 +2,15 @@ import nodemailer from 'nodemailer';
 
 export const smtpConfigured = () => !!process.env.SMTP_HOST;
 
+/** `.test` is a reserved TLD (the demo accounts use @dobara.test) — mail to it can never be delivered. */
+export const isUndeliverable = (to: string) => to.toLowerCase().endsWith('.test');
+
 /**
- * Sends an email. When SMTP is not configured (local development) the message is
- * printed in the terminal instead, so the app works without any mail account.
+ * Sends an email. When SMTP is not configured (local development), or the address can't
+ * receive mail (demo accounts), the message is printed in the terminal instead.
  */
 export async function sendMail(to: string, subject: string, text: string, html?: string) {
-  if (!smtpConfigured()) {
+  if (!smtpConfigured() || isUndeliverable(to)) {
     console.log('\n──────── DOBARA EMAIL (dev, not sent) ────────');
     console.log('To:      ' + to);
     console.log('Subject: ' + subject);

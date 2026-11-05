@@ -37,7 +37,7 @@ export function AccountMenu({ name, email, isAdmin, sellerDashHref }: { name: st
           <div style={{ padding: '4px 0' }}>
             <Link className="menu-i" href="/orders" onClick={close}><i className="ic sm i-package" />My orders</Link>
             <Link className="menu-i" href="/chat" onClick={close}><i className="ic sm i-chat" />Chats</Link>
-            <Link className="menu-i" href={sellerDashHref} onClick={close}><i className="ic sm i-store" />My listings (sell)</Link>
+            <Link className="menu-i" href={sellerDashHref} onClick={close}><i className="ic sm i-store" />Seller dashboard &amp; orders</Link>
             <Link className="menu-i" href="/profile" onClick={close}><i className="ic sm i-user" />Profile</Link>
             {isAdmin && <Link className="menu-i" href="/admin" onClick={close}><i className="ic sm i-shieldc" />Admin panel</Link>}
             <div className="acct-sep" />

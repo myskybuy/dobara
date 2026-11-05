@@ -11,9 +11,10 @@ export const metadata = { title: 'Listing approvals' };
 
 const TABS = ['PENDING_REVIEW', 'ACTIVE', 'REJECTED', 'SOLD'] as const;
 const COLS = 'minmax(0,2.4fr) 1.2fr 1fr 1fr 1.1fr 96px';
+const PAGE_SIZE = 50;
 const REASONS = ['Photos are not of the actual item', 'Price looks unrealistic / suspicious', 'Prohibited or illegal item', 'Description is unclear or misleading', 'Duplicate listing'];
 
-type SP = Promise<{ tab?: string; q?: string; view?: string }>;
+type SP = Promise<{ tab?: string; q?: string; page?: string; view?: string }>;
 
 export default async function AdminListingsPage({ searchParams }: { searchParams: SP }) {
   const sp = await searchParams;
@@ -21,14 +22,18 @@ export default async function AdminListingsPage({ searchParams }: { searchParams
   const tab = (TABS as readonly string[]).includes(sp.tab || '') ? (sp.tab as (typeof TABS)[number]) : 'PENDING_REVIEW';
   const where: Prisma.ListingWhereInput = { status: tab };
   if (sp.q) where.OR = [{ title: { contains: sp.q, mode: 'insensitive' } }, { seller: { name: { contains: sp.q, mode: 'insensitive' } } }];
+  const total = await db.listing.count({ where });
+  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const page = Math.min(pages, Math.max(1, Number(sp.page) || 1));
   const [rows, counts] = await Promise.all([
-    db.listing.findMany({ where, include: { seller: true }, orderBy: { createdAt: tab === 'PENDING_REVIEW' ? 'asc' : 'desc' }, take: 100 }),
+    db.listing.findMany({ where, include: { seller: true }, orderBy: [{ createdAt: tab === 'PENDING_REVIEW' ? 'asc' : 'desc' }, { id: 'asc' }], skip: (page - 1) * PAGE_SIZE, take: PAGE_SIZE }),
     db.listing.groupBy({ by: ['status'], _count: true }),
   ]);
   const countOf = (s: string) => counts.find((c) => c.status === s)?._count ?? 0;
   const view = sp.view ? await db.listing.findUnique({ where: { id: sp.view }, include: { seller: true } }) : null;
   const sellerListings = view ? await db.listing.count({ where: { sellerId: view.sellerId } }) : 0;
-  const here = `/admin/listings?tab=${tab}${sp.q ? '&q=' + encodeURIComponent(sp.q) : ''}`;
+  const list = `/admin/listings?tab=${tab}${sp.q ? '&q=' + encodeURIComponent(sp.q) : ''}`;
+  const here = list + (page > 1 ? `&page=${page}` : '');
 
   return (
     <div className="col g16">
@@ -58,6 +63,13 @@ export default async function AdminListingsPage({ searchParams }: { searchParams
           ))}
         </div></div>
       </div>
+      {pages > 1 && (
+        <div className="row g8" style={{ justifyContent: 'center' }}>
+          {page > 1 && <Link className="btn btn-sec btn-sm" href={`${list}&page=${page - 1}`}><Ic n="chevl" s="sm" />Previous</Link>}
+          <span className="t-sm muted" style={{ alignSelf: 'center' }}>Page {page} of {pages}</span>
+          {page < pages && <Link className="btn btn-sec btn-sm" href={`${list}&page=${page + 1}`}>Next<Ic n="chevr" s="sm" /></Link>}
+        </div>
+      )}
 
       {view && (
         <div className="overlay right">
@@ -89,7 +101,7 @@ export default async function AdminListingsPage({ searchParams }: { searchParams
                   </form>
                 )}
                 <form action={rejectListingAction} className="row g8">
-                  <input type="hidden" name="id" value={view.id} />
+                  <input type="hidden" name="id" value={view.id} /><input type="hidden" name="back" value={list} />
                   <select className="select grow" name="reason" aria-label="Reason">{REASONS.map((r) => <option key={r}>{r}</option>)}</select>
                   <button className="btn btn-danger" type="submit">{view.status === 'ACTIVE' ? 'Take down' : 'Reject'}</button>
                 </form>

@@ -5,7 +5,7 @@ import { requireUser } from '@/lib/auth';
 import { ORDER_STATUS_BADGE, ORDER_STATUS_LABEL } from '@/lib/constants';
 import { db } from '@/lib/db';
 import { inr } from '@/lib/format';
-import { canEnterOtp, orderSteps, sellerNextActions } from '@/lib/orders';
+import { canEnterOtp, isCod, orderSteps, sellerNextActions } from '@/lib/orders';
 import { Timeline } from '@/components/Timeline';
 import { FormError, Ic, Notice, Photo } from '@/components/ui';
 
@@ -22,12 +22,13 @@ export default async function SellerOrderPage({ params, searchParams }: Props) {
   const next = sellerNextActions(o);
   const buyerFirst = o.buyer.name.split(' ')[0];
   const del = o.mode === 'DELIVERY';
+  const cod = isCod(o);
 
   return (
     <div className="col g16" style={{ maxWidth: 1000 }}>
       <div className="row g8"><Link className="icon-btn bd sm" aria-label="Back" href="/seller/orders"><Ic n="chevl" s="sm" /></Link><div className="h2">{del ? 'Arrange delivery' : 'Buyer collects (pickup)'}</div></div>
       <FormError msg={sp.error} />
-      {sp.handed && <Notice kind="teal">OTP verified — item handed over. {buyerFirst} now checks the item; you are paid once they confirm (or automatically after 48 hours).</Notice>}
+      {sp.handed && <Notice kind="teal">OTP verified — item handed over. {cod ? `Make sure you collected ${inr(o.total)} from ${buyerFirst}.` : `${buyerFirst} now checks the item; you are paid once they confirm (or automatically after 48 hours).`}</Notice>}
 
       <div className="split">
         <div className="col g16">
@@ -38,6 +39,7 @@ export default async function SellerOrderPage({ params, searchParams }: Props) {
               <b>{o.listing.title}</b>
               <span className="t-sm soft">Order {o.code} · Buyer: {o.buyer.name}</span>
               <span className="t-sm"><b>{inr(o.agreedPrice)}</b> <span className="muted">agreed price (you receive this)</span></span>
+              <span className={'badge ' + (cod ? 'b-amber' : 'b-green')} style={{ alignSelf: 'flex-start' }}><Ic n={cod ? 'wallet' : 'lock'} s="xs" />{cod ? `Cash on delivery — collect ${inr(o.total)} at handover` : 'Paid online — Dobara pays you after the buyer confirms'}</span>
             </div>
           </div>
 
@@ -54,7 +56,7 @@ export default async function SellerOrderPage({ params, searchParams }: Props) {
           {o.status === 'PAID' && (
             <div className="card pad col g12">
               <b>1. Accept the order</b>
-              <span className="t-sm soft">{buyerFirst} has paid {inr(o.total)} (held by Dobara). Accept to confirm you will hand it over.</span>
+              <span className="t-sm soft">{cod ? `${buyerFirst} chose cash on delivery and will pay you ${inr(o.total)} in cash or UPI at handover.` : `${buyerFirst} has paid ${inr(o.total)} (held by Dobara).`} Accept to confirm you will hand it over.</span>
               <div className="row g8 wrapf">
                 <form action={sellerStatusAction}><input type="hidden" name="orderId" value={o.id} /><input type="hidden" name="to" value="ACCEPTED" /><button className="btn btn-pri" type="submit"><Ic n="check" s="sm" />Accept order</button></form>
                 <form action={sellerCancelAction}><input type="hidden" name="orderId" value={o.id} /><button className="btn btn-ghost c-red" type="submit">I can’t sell it — decline</button></form>
@@ -79,7 +81,7 @@ export default async function SellerOrderPage({ params, searchParams }: Props) {
             <form action={sellerOtpAction} className="card pad col g12">
               <input type="hidden" name="orderId" value={o.id} />
               <b>3. At handover, enter the buyer’s OTP</b>
-              <span className="t-sm soft">Let {buyerFirst} inspect the item first. Then ask for the 4-digit OTP shown on their order page.</span>
+              <span className="t-sm soft">Let {buyerFirst} inspect the item first{cod ? `, collect ${inr(o.total)} in cash or UPI,` : ''} then ask for the 4-digit OTP shown on their order page.</span>
               <div className="row g8 wrapf">
                 <input className="input" name="code" inputMode="numeric" maxLength={4} required placeholder="4-digit OTP" style={{ width: 160, fontSize: 20, fontWeight: 800, letterSpacing: 6, textAlign: 'center' }} aria-label="Buyer OTP" />
                 <button className="btn btn-teal" type="submit"><Ic n="checkc" s="sm" />Verify OTP &amp; complete handover</button>
@@ -88,9 +90,9 @@ export default async function SellerOrderPage({ params, searchParams }: Props) {
           )}
 
           {o.status === 'DELIVERED' && <Notice kind="teal">Handed over. Waiting for {buyerFirst} to confirm receipt (auto-confirms after 48 hours).</Notice>}
-          {o.status === 'COMPLETED' && <Notice kind="teal">Order complete. Payout of {inr(o.payout?.amount ?? o.agreedPrice)} is {o.payout?.status === 'PAID' ? 'paid' : 'scheduled'}. <Link href="/seller/reviews">Rate the buyer</Link></Notice>}
+          {o.status === 'COMPLETED' && <Notice kind="teal">Order complete. {cod ? 'You were paid in cash / UPI at handover.' : <>Payout of {inr(o.payout?.amount ?? o.agreedPrice)} is {o.payout?.status === 'PAID' ? 'paid' : 'scheduled'}.</>} <Link href="/seller/reviews">Rate the buyer</Link></Notice>}
           {o.status === 'ISSUE_REPORTED' && <Notice kind="red">{buyerFirst} reported a problem: “{o.complaints[0]?.reason}”. Your payout is on hold while Dobara reviews it.</Notice>}
-          {o.status === 'CANCELLED' && <Notice kind="gray">This order was cancelled and the buyer refunded.</Notice>}
+          {o.status === 'CANCELLED' && <Notice kind="gray">This order was cancelled{cod ? '.' : ' and the buyer refunded.'}</Notice>}
         </div>
 
         <aside className="col g12 sticky">

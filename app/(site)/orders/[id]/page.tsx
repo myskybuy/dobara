@@ -4,7 +4,8 @@ import { buyerReceivedAction } from '@/app/actions/orders';
 import { requireUser } from '@/lib/auth';
 import { ORDER_STATUS_BADGE, ORDER_STATUS_LABEL } from '@/lib/constants';
 import { db } from '@/lib/db';
-import { autoCompleteOrders, hoursLeftToConfirm, orderSteps } from '@/lib/orders';
+import { inr } from '@/lib/format';
+import { autoCompleteOrders, hoursLeftToConfirm, isCod, orderSteps } from '@/lib/orders';
 import { PriceDetails } from '@/components/PriceDetails';
 import { Timeline } from '@/components/Timeline';
 import { FormError, Ic, Notice } from '@/components/ui';
@@ -26,6 +27,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
   const canSayReceived = ['ACCEPTED', 'HANDED_TO_DELIVERY', 'OUT_FOR_DELIVERY', 'READY_FOR_PICKUP'].includes(o.status);
   const reviewed = o.reviews.some((r) => r.fromUserId === user.id);
   const complaint = o.complaints[0];
+  const cod = isCod(o);
 
   return (
     <div className="container" style={{ paddingTop: 24, paddingBottom: 48 }}>
@@ -39,10 +41,11 @@ export default async function OrderPage({ params, searchParams }: Props) {
             <span className={'badge ' + ORDER_STATUS_BADGE[o.status]} style={{ alignSelf: 'flex-start' }}>{ORDER_STATUS_LABEL[o.status]}</span>
             <div className="h2">{o.status === 'COMPLETED' ? 'Order complete' : o.status === 'CANCELLED' ? 'Order cancelled' : o.status === 'ISSUE_REPORTED' ? 'Problem reported' : current.title}</div>
             <p className="soft">
-              {o.status === 'CANCELLED' ? 'The seller could not complete this order. Your payment will be refunded.' :
+              {o.status === 'CANCELLED' ? (cod ? 'This order was cancelled. Nothing was charged.' : 'The seller could not complete this order. Your payment will be refunded.') :
                 o.status === 'ISSUE_REPORTED' ? 'Our team is looking into it. The seller is not paid until it is resolved.' :
-                o.status === 'COMPLETED' ? 'You confirmed receipt and the seller has been paid. Thanks for using Dobara!' : current.desc}
+                o.status === 'COMPLETED' ? (cod ? 'You confirmed receipt. Thanks for using Dobara!' : 'You confirmed receipt and the seller has been paid. Thanks for using Dobara!') : current.desc}
             </p>
+            <span className={'badge ' + (cod ? 'b-amber' : 'b-green')} style={{ alignSelf: 'flex-start' }}><Ic n={cod ? 'wallet' : 'lock'} s="xs" />{cod ? (o.status === 'COMPLETED' || o.status === 'DELIVERED' ? 'Cash on delivery' : `Cash on delivery — pay ${inr(o.total)} at handover`) : `Paid online — ${inr(o.total)} held by Dobara`}</span>
             <span className="t-sm muted">{o.mode === 'DELIVERY' ? <>Deliver to: {o.address}</> : <>Pickup: {o.pickupPlace} · {o.pickupTime}</>}</span>
           </div>
 

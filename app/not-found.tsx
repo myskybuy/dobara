@@ -1,11 +1,12 @@
 import Link from 'next/link';
+import { Logo } from '@/components/Logo';
 
 export default function NotFound() {
   return (
     <>
       <header className="top">
         <div className="container row between" style={{ height: 68 }}>
-          <Link className="logo" href="/" aria-label="Dobara home"><span className="logo-m" /><span>dobara</span></Link>
+          <Link className="logo" href="/" aria-label="Dobara home"><Logo /></Link>
         </div>
       </header>
       <div className="container" style={{ paddingTop: 48, paddingBottom: 48 }}>

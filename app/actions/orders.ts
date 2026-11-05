@@ -5,7 +5,7 @@ import { db } from '@/lib/db';
 import { getUser } from '@/lib/auth';
 import { DELIVERY_FEE, ISSUE_REASONS } from '@/lib/constants';
 import { str, toInt } from '@/lib/format';
-import { cancelOrder, completeOrder, markOrderPaid, newHandoverOtp, newOrderCode, sellerNextActions, canEnterOtp } from '@/lib/orders';
+import { cancelOrder, completeOrder, isCod, markOrderPaid, newHandoverOtp, newOrderCode, sellerNextActions, canEnterOtp } from '@/lib/orders';
 import { razorpayEnabled } from '@/lib/payments';
 
 async function me(next: string) {
@@ -27,7 +27,7 @@ export async function createOrderAction(fd: FormData) {
   const c = await db.conversation.findUnique({ where: { id: conversationId }, include: { listing: true } });
   if (!c || c.buyerId !== user.id) redirect('/chat');
   if (c.agreedPrice == null) err('/chat/' + conversationId, 'Agree on a price with the seller first.');
-  if (c.listing.status !== 'ACTIVE') err('/chat/' + conversationId, 'This item is no longer available.');
+  if (!['ACTIVE', 'RESERVED'].includes(c.listing.status)) err('/chat/' + conversationId, 'This item is no longer available.');
 
   const mode = str(fd.get('mode')) === 'PICKUP' ? 'PICKUP' : 'DELIVERY';
   if (mode === 'PICKUP' && !c.listing.canPickup) err(back, 'The seller does not offer pickup for this item.');
@@ -68,10 +68,23 @@ export async function demoPayAction(fd: FormData) {
   const o = await db.order.findUnique({ where: { id: orderId }, include: { listing: true } });
   if (!o || o.buyerId !== user.id) redirect('/orders');
   if (o.status !== 'PENDING_PAYMENT') redirect('/orders/' + orderId);
-  if (o.listing.status !== 'ACTIVE') err('/pay/' + orderId, 'Sorry, this item was just sold to someone else. You have not been charged.');
+  if (!['ACTIVE', 'RESERVED'].includes(o.listing.status)) err('/pay/' + orderId, 'Sorry, this item was just sold to someone else. You have not been charged.');
   if (str(fd.get('simulate')) === 'fail') err('/pay/' + orderId, 'Payment failed (demo). No money was taken. Please try again.');
   const res = await markOrderPaid(orderId, 'demo', 'demo_' + Date.now());
   if (res === 'sold_out') err('/orders', 'Sorry, this item was just sold to someone else. Your payment will be refunded.');
+  redirect('/orders/' + orderId + '/placed');
+}
+
+/** Cash on delivery (or cash / UPI at pickup): the order is confirmed now and the buyer pays the seller at handover. */
+export async function codOrderAction(fd: FormData) {
+  const orderId = str(fd.get('orderId'));
+  const user = await me('/pay/' + orderId);
+  const o = await db.order.findUnique({ where: { id: orderId }, include: { listing: true } });
+  if (!o || o.buyerId !== user.id) redirect('/orders');
+  if (o.status !== 'PENDING_PAYMENT') redirect('/orders/' + orderId);
+  if (!['ACTIVE', 'RESERVED'].includes(o.listing.status)) err('/pay/' + orderId, 'Sorry, this item was just sold to someone else.');
+  const res = await markOrderPaid(orderId, 'cod', 'cod_' + Date.now());
+  if (res === 'sold_out') err('/orders', 'Sorry, this item was just sold to someone else.');
   redirect('/orders/' + orderId + '/placed');
 }
 
@@ -174,6 +187,6 @@ export async function sellerCancelAction(fd: FormData) {
   const o = await db.order.findUnique({ where: { id: orderId } });
   if (!o || o.sellerId !== user.id) redirect('/seller/orders');
   if (o.status !== 'PAID') err('/seller/orders/' + orderId, 'Only new orders can be declined.');
-  await cancelOrder(orderId, 'the seller could not complete it. Your payment will be refunded.');
+  await cancelOrder(orderId, 'the seller could not complete it.' + (isCod(o) ? '' : ' Your payment will be refunded.'));
   redirect('/seller/orders?declined=1');
 }

@@ -4,6 +4,7 @@ import { requireAdmin } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { avatarCls, initials } from '@/lib/format';
 import { DashNav, DashTitle } from '@/components/DashNav';
+import { Logo } from '@/components/Logo';
 import { TabBar } from '@/components/TabBar';
 
 export const metadata = { title: { default: 'Admin', template: '%s · Dobara Admin' } };
@@ -26,8 +27,8 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   const titles: [string, string][] = [['/admin/listings', 'Listing approvals'], ['/admin/sellers', 'Seller approvals'], ['/admin/users', 'Users'], ['/admin/orders', 'Orders & payouts'], ['/admin/complaints', 'Complaints'], ['/admin', 'Dashboard']];
   return (
     <div className="dash-shell">
-      <aside className="side" aria-label="Admin navigation" style={{ gap: 0 }}>
-        <div className="row between" style={{ padding: '6px 8px 12px' }}><Link className="logo" href="/"><span className="logo-m" />dobara</Link><span className="badge b-dark">Admin</span></div>
+      <aside className="side t-side-dark" aria-label="Admin navigation" style={{ gap: 0 }}>
+        <div className="row between" style={{ padding: '6px 8px 12px' }}><Link className="logo" href="/"><Logo /></Link><span className="badge b-amber">Admin</span></div>
         <DashNav items={items} exact="/admin" />
         <div className="grow" />
         <Link className="side-link" href="/"><i className="ic i-store" />Back to website</Link>

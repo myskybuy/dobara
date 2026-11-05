@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { demoPayAction } from '@/app/actions/orders';
+import { codOrderAction, demoPayAction } from '@/app/actions/orders';
 import { requireUser } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { inr } from '@/lib/format';
@@ -43,12 +43,16 @@ export default async function PayPage({ params, searchParams }: Props) {
               <Link className="linkbtn t-sm" href={o.conversationId ? '/checkout/' + o.conversationId : '/orders'}><Ic n="edit" s="sm" />Change pickup / delivery</Link>
             </div>
 
+            <span className="soft">Choose how you want to pay. Either way the item is marked <b>Sold</b> as soon as you place the order.</span>
+
+            <div className="card pad col g12">
+              <div className="row g12"><span className="mi-ic" style={{ background: 'var(--pri-50)', color: 'var(--pri)' }}><Ic n="lock" /></span>
+                <div className="col" style={{ gap: 0 }}><span className="eyebrow c-pri">Option 1</span><b className="t-lg">Pay online now</b></div></div>
             {live ? (
-              <div className="card pad col g12">
-                <b>Pay with Razorpay</b>
-                <span className="t-sm soft">UPI, cards and net banking. This uses your Razorpay <b>test</b> keys — use Razorpay test card / UPI details, no real money moves.</span>
-                <RazorpayButton orderId={o.id} label={'Pay ' + inr(o.total)} name={user.name} email={user.email} />
-              </div>
+              <>
+                <span className="t-sm soft">UPI, cards and net banking via Razorpay. Dobara holds the money and pays the seller only after you confirm you got the item.</span>
+                <RazorpayButton orderId={o.id} label={'Pay ' + inr(o.total) + ' online'} name={user.name} email={user.email} />
+              </>
             ) : (
               <form action={demoPayAction} className="col g12">
                 <input type="hidden" name="orderId" value={o.id} />
@@ -69,7 +73,16 @@ export default async function PayPage({ params, searchParams }: Props) {
                 <button className="btn btn-ghost btn-sm" type="submit" name="simulate" value="fail" style={{ alignSelf: 'center' }}>Simulate a failed payment</button>
               </form>
             )}
-            <span className="t-xs muted">By paying you agree to Dobara’s <Link href="/terms">Terms</Link>. The seller is paid only after you confirm you received the item.</span>
+            </div>
+
+            <form action={codOrderAction} className="card pad col g12">
+              <input type="hidden" name="orderId" value={o.id} />
+              <div className="row g12"><span className="mi-ic" style={{ background: 'var(--green-50)', color: 'var(--green)' }}><Ic n="wallet" /></span>
+                <div className="col" style={{ gap: 0 }}><span className="eyebrow c-green">Option 2</span><b className="t-lg">{o.mode === 'DELIVERY' ? 'Cash on delivery' : 'Pay at pickup'}</b></div></div>
+              <span className="t-sm soft">Place the order now and pay <b>{inr(o.total)}</b> to {o.seller.name.split(' ')[0]} in cash or UPI when you get the item. Check the item before you pay.</span>
+              <button className="btn btn-sec btn-lg btn-block" type="submit"><Ic n="check" s="sm" />Place order — pay {inr(o.total)} {o.mode === 'DELIVERY' ? 'on delivery' : 'at pickup'}</button>
+            </form>
+            <span className="t-xs muted">By placing the order you agree to Dobara’s <Link href="/terms">Terms</Link>. Online payments are released to the seller only after you confirm you received the item.</span>
           </div>
           <aside className="col g12 sticky">
             <PriceDetails title={o.listing.title} photo={o.listing.photos[0]} price={o.agreedPrice} fee={o.deliveryFee} />

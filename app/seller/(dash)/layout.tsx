@@ -5,6 +5,7 @@ import { requireUser } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { avatarCls, initials } from '@/lib/format';
 import { DashNav, DashTitle } from '@/components/DashNav';
+import { Logo } from '@/components/Logo';
 import { TabBar } from '@/components/TabBar';
 
 export const metadata = { title: { default: 'Seller', template: '%s · Dobara Seller' } };
@@ -32,14 +33,14 @@ export default async function SellerLayout({ children }: { children: ReactNode }
     <div className="dash-shell">
       <aside className="side" aria-label="Seller navigation">
         <div className="row between" style={{ padding: '6px 8px 18px' }}>
-          <Link className="logo" href="/"><span className="logo-m" />dobara</Link><span className="badge b-amber">Seller</span>
+          <Link className="logo" href="/"><Logo /></Link><span className="badge b-amber">Seller</span>
         </div>
         <DashNav items={items} exact="/seller" />
         <Link className="side-link" href="/"><i className="ic i-store" />Switch to buying</Link>
         <div className="grow" />
-        <div className="panel row g8" style={{ marginTop: 12 }}>
-          <span className={avatarCls(user.name) + ' sm'}>{initials(user.name)}</span>
-          <div className="col grow" style={{ gap: 0, minWidth: 0 }}><b className="t-sm clamp1">{user.name}</b><span className="vbadge"><i className="ic xs i-mail" />Email verified</span></div>
+        <div className="t-side-card">
+          <span className={avatarCls(user.name) + ' sm'} style={{ boxShadow: '0 0 0 2px rgba(255,255,255,.3)' }}>{initials(user.name)}</span>
+          <div className="col grow" style={{ gap: 2, minWidth: 0 }}><b className="t-sm clamp1">{user.name}</b><span className="t-vbadge" style={{ alignSelf: 'flex-start' }}><i className="ic xs i-verified" />Verified seller</span></div>
         </div>
       </aside>
       <div className="dash-main">

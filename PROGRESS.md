@@ -17,6 +17,15 @@
 - [x] **Location page redesign.** City chips (filter), full-width search, responsive area grid (1/2/3 columns), sticky "Continue" bar on mobile
 - [x] `npx tsc --noEmit`, `npm run build` and `npm run db:reset` all pass after these changes
 
+## Phase 10 — Seller coverage & QA (2026-10-12)
+
+- [x] 3–4 verified sellers in **every** area (118 approved sellers, ~3 live listings each, real photos) — `prisma/demo-sellers-extra.ts`, shared creator in `prisma/demo-seed-helpers.ts`
+- [x] `npm run db:add-sellers` adds them to an existing DB without wiping (also swaps old `sprite:` art for photos); `seed.ts` includes them on a full reset
+- [x] Admin → Seller approvals: search + pagination (was capped at 100 rows); Admin → Listings: pagination (was capped at 100)
+- [x] Admin approve/reject actions only follow `back` inside `/admin`; "Take down" returns to the same tab
+- [x] OTP for `@*.test` demo addresses is shown on screen in dev even when SMTP is set (previously no demo account could log in)
+- [x] Seller logins listed in `SELLER_LOGINS.md`
+
 ## Checklist
 
 - [x] **Phase 0 — Setup.** Next.js 16 + TS, Prisma schema, design CSS, header/footer, tab bar, seed data

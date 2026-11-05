@@ -4,6 +4,7 @@ import { getLocation, getUser, sellerCtaHref } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { Ic } from './ui';
 import { AccountMenu } from './AccountMenu';
+import { Logo } from './Logo';
 
 export async function unreadCount(userId: string) {
   return db.message.count({
@@ -20,6 +21,8 @@ export async function SiteHeader({ activeCat }: { activeCat?: string }) {
   const user = await getUser();
   const loc = await getLocation();
   const unread = user ? await unreadCount(user.id) : 0;
+  // Sellers see new orders (waiting for them to accept) from anywhere on the site.
+  const newOrders = user?.sellerStatus === 'APPROVED' ? await db.order.count({ where: { sellerId: user.id, status: 'PAID' } }) : 0;
   const sellHref = sellerCtaHref(user);
 
   return (
@@ -27,8 +30,7 @@ export async function SiteHeader({ activeCat }: { activeCat?: string }) {
       <div className="container">
         <div className="top-in">
           <Link className="logo" href="/" aria-label="Dobara home">
-            <span className="logo-m" />
-            <span>dobara</span>
+            <Logo tagline />
           </Link>
           <Link className="locbtn" href="/location" aria-label="Change location">
             <Ic n="pin" s="sm" className="c-pri" />
@@ -51,6 +53,12 @@ export async function SiteHeader({ activeCat }: { activeCat?: string }) {
                   <Ic n="chat" />
                   {unread > 0 && <span className="dotn">{unread > 9 ? '9+' : unread}</span>}
                 </Link>
+                {newOrders > 0 && (
+                  <Link className="btn btn-sec btn-sm" href="/seller/orders?tab=new" style={{ position: 'relative' }} title="New orders waiting for you to accept">
+                    <Ic n="package" s="sm" /><span className="hide-m">New order{newOrders > 1 ? 's' : ''}</span>
+                    <span className="dotn">{newOrders > 9 ? '9+' : newOrders}</span>
+                  </Link>
+                )}
                 <AccountMenu name={user.name} email={user.email} isAdmin={user.isAdmin} sellerDashHref={user.sellerStatus === 'APPROVED' ? '/seller' : '/seller/apply'} />
               </>
             ) : (
@@ -80,7 +88,7 @@ export async function SiteFooter() {
       <div className="container" style={{ paddingTop: 48, paddingBottom: 8 }}>
         <div className="foot-grid">
           <div className="col g12 foot-brand">
-            <span className="logo" style={{ color: '#fff' }}><span className="logo-m" />dobara</span>
+            <span className="logo" style={{ color: '#fff' }}><Logo tagline /></span>
             <p className="t-sm" style={{ maxWidth: 320, lineHeight: 1.7 }}>
               India’s trusted marketplace for pre-loved things. Buy and sell nearby with secure payments, pickup or doorstep delivery.
             </p>

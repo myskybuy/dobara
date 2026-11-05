@@ -5,6 +5,9 @@
 import { PrismaClient } from '@prisma/client';
 import { readFileSync } from 'fs';
 import path from 'path';
+import { DEMO_BUYERS, DEMO_SELLERS, photosForSprite } from './demo-sellers';
+import { EXTRA_SELLERS } from './demo-sellers-extra';
+import { createDemoSeller } from './demo-seed-helpers';
 
 const db = new PrismaClient();
 
@@ -74,7 +77,7 @@ async function main() {
       data: {
         sellerId: sellers[sid]!, title, category: cat, condition: COND[cond] ?? cond, price,
         description: desc + (reason ? `\n\nReason for selling: ${reason}` : ''),
-        photos: ['sprite:' + img], canPickup: true, canDeliver: del, city, area, views,
+        photos: photosForSprite(img, Object.keys(listingIds).length), canPickup: true, canDeliver: del, city, area, views,
         status: status === 'sold' ? 'SOLD' : 'ACTIVE', createdAt: ago(mins),
       },
     });
@@ -82,8 +85,8 @@ async function main() {
   }
   // Two listings waiting for admin approval
   const karan = sellers['s1']!;
-  await db.listing.create({ data: { sellerId: karan, title: 'Gaming chair with footrest', category: 'furniture', condition: 'Good', price: 7400, description: 'Ergonomic gaming chair with lumbar pillow and footrest. Used for a year, no tears in the leatherette.', photos: ['sprite:chair'], city: 'Noida', area: 'Sector 18', status: 'PENDING_REVIEW', createdAt: ago(45) } });
-  await db.listing.create({ data: { sellerId: sellers['s2']!, title: 'iPhone 14 Pro — ₹9,999 only!!', category: 'mobiles', condition: 'Like New', price: 9999, description: 'Urgent sale, brand new condition, no bill. Pay advance to book.', photos: ['sprite:phone'], city: 'Noida', area: 'Sector 50', status: 'PENDING_REVIEW', createdAt: ago(30) } });
+  await db.listing.create({ data: { sellerId: karan, title: 'Gaming chair with footrest', category: 'furniture', condition: 'Good', price: 7400, description: 'Ergonomic gaming chair with lumbar pillow and footrest. Used for a year, no tears in the leatherette.', photos: photosForSprite('chair', 1), city: 'Noida', area: 'Sector 18', status: 'PENDING_REVIEW', createdAt: ago(45) } });
+  await db.listing.create({ data: { sellerId: sellers['s2']!, title: 'iPhone 14 Pro — ₹9,999 only!!', category: 'mobiles', condition: 'Like New', price: 9999, description: 'Urgent sale, brand new condition, no bill. Pay advance to book.', photos: photosForSprite('phone', 2), city: 'Noida', area: 'Sector 50', status: 'PENDING_REVIEW', createdAt: ago(30) } });
 
   console.log('Creating a chat with offers…');
   const p1 = listingIds['p1']!;
@@ -126,7 +129,7 @@ async function main() {
   for (const [title, img, price, rating, text] of extras) {
     n++;
     const buyer = n % 2 ? rhea : manish;
-    const l = await db.listing.create({ data: { sellerId: karan, title, category: 'cameras', condition: 'Good', price, description: title + ' in good condition.', photos: ['sprite:' + img], city: 'Noida', area: 'Sector 18', status: 'SOLD', createdAt: ago(60 * 24 * (40 + n * 15)) } });
+    const l = await db.listing.create({ data: { sellerId: karan, title, category: 'cameras', condition: 'Good', price, description: title + ' in good condition.', photos: photosForSprite(img, n), city: 'Noida', area: 'Sector 18', status: 'SOLD', createdAt: ago(60 * 24 * (40 + n * 15)) } });
     const o = await db.order.create({
       data: {
         code: 'DB-2026-0900' + n, listingId: l.id, buyerId: buyer.id, sellerId: karan, agreedPrice: price, deliveryFee: 0, total: price, mode: 'PICKUP',
@@ -150,6 +153,15 @@ async function main() {
       mode: 'DELIVERY', address: rhea.address, status: 'PAID', handoverOtp: '4827', paymentMode: 'demo', paymentId: 'demo_seed2', paidAt: ago(60), createdAt: ago(62),
     },
   });
+
+  console.log('Creating verified sellers in every city…');
+  const buyerPool = [aarav, rhea];
+  for (const b of DEMO_BUYERS) {
+    buyerPool.push(await db.user.create({ data: { ...b, address: `${b.area}, ${b.city}`, createdAt: ago(60 * 24 * 200) } }));
+  }
+  const allSellers = [...DEMO_SELLERS, ...EXTRA_SELLERS];
+  for (const [idx, s] of allSellers.entries()) await createDemoSeller(db, s, idx + 1, buyerPool);
+  console.log(`  ${allSellers.length} verified sellers, ${allSellers.reduce((a, s) => a + s.items.length, 0)} live listings across ${new Set(allSellers.map((s) => s.city)).size} cities`);
 
   console.log(`Done. Users: admin@dobara.test (admin), aarav@dobara.test (buyer), karan@dobara.test (seller). Admin id ${admin.id}`);
 }

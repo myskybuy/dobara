@@ -11,6 +11,7 @@
     "db:push": "prisma db push",
     "db:seed": "prisma db seed",
     "db:reset": "prisma db push --force-reset && prisma db seed",
+    "db:add-sellers": "tsx prisma/add-demo-sellers.ts",
     "setup": "prisma generate && prisma db push && prisma db seed",
     "postinstall": "prisma generate"
   },

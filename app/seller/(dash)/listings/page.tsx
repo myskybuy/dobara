@@ -8,7 +8,7 @@ import { Empty, FormError, Ic, Notice, Photo } from '@/components/ui';
 
 export const metadata = { title: 'My listings' };
 
-const TABS = ['ACTIVE', 'PENDING_REVIEW', 'SOLD', 'REJECTED'] as const;
+const TABS = ['ACTIVE', 'RESERVED', 'PENDING_REVIEW', 'SOLD', 'REJECTED'] as const;
 
 type SP = Promise<{ tab?: string; saved?: string; removed?: string; error?: string }>;
 
@@ -49,11 +49,12 @@ export default async function MyListingsPage({ searchParams }: { searchParams: S
                 <span className="price">{inr(l.price)}</span>
                 <span className="row g12 t-xs muted"><span className="row g4"><Ic n="eye" s="xs" />{l.views} views</span><span className="row g4"><Ic n="chat" s="xs" />{l._count.conversations} chats</span></span>
                 {l.status === 'REJECTED' && <span className="t-sm c-red">Reason: {l.rejectReason}</span>}
+                {l.status === 'RESERVED' && <span className="t-sm soft">Price agreed with a buyer in chat — hidden from others until they place the order. Cancel the deal from the chat to put it back on sale.</span>}
               </div>
               <div className="row g6" style={{ alignSelf: 'center' }}>
-                {l.status === 'ACTIVE' && <Link className="btn btn-ghost btn-sm" href={`/item/${l.id}`}><Ic n="eye" s="sm" />View</Link>}
-                {l.status !== 'SOLD' && <Link className="btn btn-ghost btn-sm" href={`/seller/new?edit=${l.id}`}><Ic n="edit" s="sm" />Edit</Link>}
-                {l.status !== 'SOLD' && (
+                {['ACTIVE', 'RESERVED'].includes(l.status) && <Link className="btn btn-ghost btn-sm" href={`/item/${l.id}`}><Ic n="eye" s="sm" />View</Link>}
+                {!['SOLD', 'RESERVED'].includes(l.status) && <Link className="btn btn-ghost btn-sm" href={`/seller/new?edit=${l.id}`}><Ic n="edit" s="sm" />Edit</Link>}
+                {!['SOLD', 'RESERVED'].includes(l.status) && (
                   <form action={deleteListingAction}>
                     <input type="hidden" name="id" value={l.id} />
                     <button className="btn btn-ghost btn-sm c-red" type="submit" aria-label="Remove listing"><Ic n="trash" s="sm" /></button>

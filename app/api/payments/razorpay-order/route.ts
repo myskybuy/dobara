@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   const o = await db.order.findUnique({ where: { id: orderId || '' }, include: { listing: true } });
   if (!o || o.buyerId !== user.id) return NextResponse.json({ error: 'Order not found' }, { status: 404 });
   if (o.status !== 'PENDING_PAYMENT') return NextResponse.json({ error: 'This order is already paid' }, { status: 400 });
-  if (o.listing.status !== 'ACTIVE') return NextResponse.json({ error: 'Sorry, this item was just sold to someone else.' }, { status: 409 });
+  if (!['ACTIVE', 'RESERVED'].includes(o.listing.status)) return NextResponse.json({ error: 'Sorry, this item was just sold to someone else.' }, { status: 409 });
   try {
     const rzpOrderId = await createRazorpayOrder(o.total, o.code);
     await db.order.update({ where: { id: o.id }, data: { razorpayOrderId: rzpOrderId } });

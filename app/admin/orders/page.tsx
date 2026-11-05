@@ -35,7 +35,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
             {orders.length === 0 && <div className="pad t-sm muted">No orders yet.</div>}
             {orders.map((o) => (
               <div key={o.id} className="dt-row" style={{ gridTemplateColumns: COLS }}>
-                <span className="col" style={{ gap: 0, minWidth: 0 }}><b className="clamp1">{o.listing.title}</b><span className="t-xs muted">{o.code} · {o.mode === 'DELIVERY' ? 'Delivery' : 'Pickup'} · {fmtDateTime(o.paidAt ?? o.createdAt)} · {o.paymentMode === 'razorpay' ? 'Razorpay' : 'Demo pay'}</span></span>
+                <span className="col" style={{ gap: 0, minWidth: 0 }}><b className="clamp1">{o.listing.title}</b><span className="t-xs muted">{o.code} · {o.mode === 'DELIVERY' ? 'Delivery' : 'Pickup'} · {fmtDateTime(o.paidAt ?? o.createdAt)} · {o.paymentMode === 'razorpay' ? 'Razorpay' : o.paymentMode === 'cod' ? 'Cash on delivery' : 'Demo pay'}</span></span>
                 <span className="clamp1">{o.buyer.name}</span>
                 <span className="clamp1">{o.seller.name}</span>
                 <span className="num strong">{inr(o.total)}</span>

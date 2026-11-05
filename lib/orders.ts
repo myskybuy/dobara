@@ -11,12 +11,14 @@ export function newOrderCode() {
 
 export const newHandoverOtp = () => randomDigits(4);
 
+export const isCod = (o: Pick<Order, 'paymentMode'>) => o.paymentMode === 'cod';
+
 /**
- * Payment succeeded (Razorpay or demo): mark the order paid and reserve the listing — atomically,
- * so two buyers can never both pay for the same item. Returns "sold_out" if someone else bought it first
- * (the order is cancelled and must be refunded).
+ * Order placed — paid online (Razorpay / demo) or Cash on delivery: confirm the order and mark the listing SOLD,
+ * atomically, so two buyers can never both get the same item. Returns "sold_out" if someone else bought it first
+ * (the order is cancelled and, if paid online, must be refunded).
  */
-export async function markOrderPaid(orderId: string, mode: 'razorpay' | 'demo', paymentId: string): Promise<'ok' | 'already' | 'sold_out'> {
+export async function markOrderPaid(orderId: string, mode: 'razorpay' | 'demo' | 'cod', paymentId: string): Promise<'ok' | 'already' | 'sold_out'> {
   const result = await db.$transaction(async (tx) => {
     const order = await tx.order.findUnique({ where: { id: orderId } });
     if (!order) return 'already' as const;
@@ -25,14 +27,17 @@ export async function markOrderPaid(orderId: string, mode: 'razorpay' | 'demo', 
       data: { status: 'PAID', paidAt: new Date(), paymentMode: mode, paymentId },
     });
     if (paid.count === 0) return 'already' as const;
-    const reserved = await tx.listing.updateMany({ where: { id: order.listingId, status: 'ACTIVE' }, data: { status: 'SOLD' } });
+    const reserved = await tx.listing.updateMany({ where: { id: order.listingId, status: { in: ['ACTIVE', 'RESERVED'] } }, data: { status: 'SOLD' } });
     if (reserved.count === 0) {
       await tx.order.update({ where: { id: orderId }, data: { status: 'CANCELLED', cancelledAt: new Date() } });
       return 'sold_out' as const;
     }
     if (order.conversationId) {
+      const how = mode === 'cod'
+        ? `Cash on delivery — ${inr(order.total)} to be paid to the seller at handover.`
+        : `${inr(order.total)} paid online and held safely by Dobara.`;
       await tx.message.create({
-        data: { conversationId: order.conversationId, senderId: order.buyerId, type: 'SYSTEM', text: `Order ${order.code} placed. ${inr(order.total)} paid and held safely by Dobara.` },
+        data: { conversationId: order.conversationId, senderId: order.buyerId, type: 'SYSTEM', text: `Order ${order.code} placed. ${how} The item is now marked SOLD.` },
       });
     }
     return 'ok' as const;
@@ -45,7 +50,7 @@ export async function cancelOrder(orderId: string, note: string) {
   const o = await db.order.findUnique({ where: { id: orderId } });
   if (!o || ['COMPLETED', 'CANCELLED'].includes(o.status)) return;
   await db.order.update({ where: { id: orderId }, data: { status: 'CANCELLED', cancelledAt: new Date() } });
-  await db.listing.updateMany({ where: { id: o.listingId, status: 'SOLD' }, data: { status: 'ACTIVE' } });
+  await db.listing.updateMany({ where: { id: o.listingId, status: { in: ['SOLD', 'RESERVED'] } }, data: { status: 'ACTIVE' } });
   await db.complaint.updateMany({ where: { orderId, status: 'OPEN' }, data: { status: 'RESOLVED', outcome: 'refund_buyer', adminNote: note } });
   if (o.conversationId) {
     await db.conversation.update({ where: { id: o.conversationId }, data: { agreedPrice: null } });
@@ -53,11 +58,12 @@ export async function cancelOrder(orderId: string, note: string) {
   }
 }
 
-/** Buyer confirmed receipt (or 48 h passed): complete the order and create the seller payout. */
+/** Buyer confirmed receipt (or 48 h passed): complete the order and create the seller payout (none for COD — the seller already has the cash). */
 export async function completeOrder(orderId: string) {
   const order = await db.order.findUnique({ where: { id: orderId } });
   if (!order || (order.status !== 'DELIVERED' && order.status !== 'ISSUE_REPORTED')) return;
   await db.order.update({ where: { id: orderId }, data: { status: 'COMPLETED', completedAt: new Date() } });
+  if (isCod(order)) return;
   await db.payout.upsert({
     where: { orderId },
     create: { orderId, sellerId: order.sellerId, amount: order.agreedPrice },
@@ -82,9 +88,10 @@ export type Step = { title: string; desc: string; at: Date | null; state: 'done'
 /** Timeline shown on the order page. Simple status steps — no tracking. */
 export function orderSteps(o: Order, sellerFirst: string): Step[] {
   const del = o.mode === 'DELIVERY';
+  const pay = isCod(o) ? `Cash on delivery — pay ${inr(o.total)} at handover` : `Payment of ${inr(o.total)} held safely by Dobara`;
   const raw: [string, string, Date | null][] = del
     ? [
-        ['Order confirmed', `Payment of ${inr(o.total)} held safely by Dobara`, o.paidAt],
+        ['Order confirmed', pay, o.paidAt],
         ['Seller accepted', `${sellerFirst} is packing the item`, o.acceptedAt],
         ['Handed to delivery', o.courierNote ? o.courierNote : 'Seller has sent the item', o.shippedAt],
         ['Out for delivery', 'You will get a call before delivery', o.outAt],
@@ -92,7 +99,7 @@ export function orderSteps(o: Order, sellerFirst: string): Step[] {
         ['Confirm receipt', `Check the item and confirm within ${AUTO_CONFIRM_HOURS} hours`, o.completedAt],
       ]
     : [
-        ['Order confirmed', `Payment of ${inr(o.total)} held safely by Dobara`, o.paidAt],
+        ['Order confirmed', pay, o.paidAt],
         ['Seller accepted', `${sellerFirst} confirmed the pickup`, o.acceptedAt],
         ['Ready for pickup', [o.pickupPlace, o.pickupTime].filter(Boolean).join(' · ') || 'Meet the seller at the agreed place', o.readyAt],
         ['Collected', 'Pickup OTP checked at handover', o.deliveredAt],
