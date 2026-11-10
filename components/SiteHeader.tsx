@@ -95,7 +95,6 @@ export async function SiteFooter() {
             </p>
             <div className="col g6 t-sm">
               <a className="row g8" href={`mailto:${COMPANY.email}`} style={{ color: 'inherit' }}><Ic n="mail" s="sm" />{COMPANY.email}</a>
-              <span className="row g8"><Ic n="phone" s="sm" />1800-120-4410 · 9 AM – 9 PM, all days</span>
             </div>
           </div>
           <div className="col g8"><span className="fh">Buy</span><Link className="fl" href="/browse">All categories</Link><Link className="fl" href="/browse?sort=nearby">Items near you</Link><Link className="fl" href="/orders">My orders</Link></div>
@@ -103,16 +102,11 @@ export async function SiteFooter() {
           <div className="col g8"><span className="fh">Company</span><Link className="fl" href="/about">About us</Link><Link className="fl" href="/contact">Contact us</Link></div>
           <div className="col g8"><span className="fh">Legal</span><Link className="fl" href="/terms">Terms &amp; conditions</Link><Link className="fl" href="/privacy">Privacy policy</Link></div>
         </div>
-        <div className="t-xs" style={{ marginTop: 36, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,.12)', lineHeight: 1.8, display: 'grid', gap: 4 }}>
+        <div className="t-xs" style={{ marginTop: 36, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,.12)', lineHeight: 1.8 }}>
           <span><b>Registered Office:</b> {COMPANY.address}.</span>
-          <span><b>GSTIN:</b> {COMPANY.gstin}</span>
-          <span><b>Legal Name:</b> {COMPANY.legalName}</span>
         </div>
         <div className="foot-bottom" style={{ marginTop: 16 }}>
           <span>© {new Date().getFullYear()} {COMPANY.legalName}. All Rights Reserved.</span>
-          <div className="row wrapf g6">
-            {['UPI', 'Visa', 'Mastercard', 'RuPay', 'Net banking'].map((p) => <span key={p} className="paychip">{p}</span>)}
-          </div>
         </div>
       </div>
     </footer>
