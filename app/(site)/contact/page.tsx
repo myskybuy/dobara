@@ -1,5 +1,6 @@
 import { contactAction } from '@/app/actions/misc';
 import { getUser } from '@/lib/auth';
+import { COMPANY } from '@/lib/company';
 import { FormError, Ic, Notice } from '@/components/ui';
 
 export const metadata = { title: 'Contact us' };
@@ -41,9 +42,9 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
         </div>
         <aside className="col g12">
           <div className="card pad row start g12"><span className="mi-ic" style={{ background: 'var(--teal-50)', color: 'var(--teal)' }}><Ic n="phone" /></span><div className="col" style={{ gap: 2 }}><b>Call us</b><span className="t-sm soft">1800-120-4410 (toll-free)</span><span className="t-xs muted">9 AM – 9 PM, all days</span></div></div>
-          <div className="card pad row start g12"><span className="mi-ic" style={{ background: 'var(--amber-50)', color: 'var(--amber-ink)' }}><Ic n="mail" /></span><div className="col" style={{ gap: 2 }}><b>Email</b><span className="t-sm soft">support@dobara.in</span></div></div>
-          <div className="card pad row start g12"><span className="mi-ic"><Ic n="home" /></span><div className="col" style={{ gap: 2 }}><b>Registered office</b><span className="t-sm soft">Dobara Marketplace Pvt. Ltd., Sector 62, Noida, Uttar Pradesh 201309</span></div></div>
-          <div className="card pad row start g12"><span className="mi-ic" style={{ background: 'var(--red-50)', color: 'var(--red)' }}><Ic n="flag" /></span><div className="col" style={{ gap: 2 }}><b>Grievance Officer</b><span className="t-sm soft">grievance@dobara.in</span><span className="t-xs muted">Acknowledged within 24 hours, resolved within 15 days.</span></div></div>
+          <div className="card pad row start g12"><span className="mi-ic" style={{ background: 'var(--amber-50)', color: 'var(--amber-ink)' }}><Ic n="mail" /></span><div className="col" style={{ gap: 2 }}><b>Email</b><a className="t-sm soft" href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a></div></div>
+          <div className="card pad row start g12"><span className="mi-ic"><Ic n="home" /></span><div className="col" style={{ gap: 2 }}><b>Registered office</b><span className="t-sm soft">{COMPANY.legalName}, {COMPANY.address}</span><span className="t-xs muted">GSTIN: {COMPANY.gstin}</span></div></div>
+          <div className="card pad row start g12"><span className="mi-ic" style={{ background: 'var(--red-50)', color: 'var(--red)' }}><Ic n="flag" /></span><div className="col" style={{ gap: 2 }}><b>Grievance Officer</b><a className="t-sm soft" href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a><span className="t-xs muted">Acknowledged within 24 hours, resolved within 15 days.</span></div></div>
         </aside>
       </div>
     </div>

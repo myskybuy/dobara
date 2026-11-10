@@ -121,7 +121,7 @@ export const LEGAL: Record<"terms" | "privacy", LegalDoc> = {
     "id": "t13",
     "h": "13. Suspension and termination",
     "p": [
-     "We may suspend or close accounts that break these terms, receive repeated verified complaints, or pose a safety risk. You may close your account at any time by writing to support@dobara.in once all orders are complete."
+     "We may suspend or close accounts that break these terms, receive repeated verified complaints, or pose a safety risk. You may close your account at any time by writing to info@dobaraa.in once all orders are complete."
     ],
     "list": []
    },
@@ -129,7 +129,7 @@ export const LEGAL: Record<"terms" | "privacy", LegalDoc> = {
     "id": "t14",
     "h": "14. Governing law",
     "p": [
-     "These terms are governed by the laws of India. Courts at Gautam Buddh Nagar, Uttar Pradesh have exclusive jurisdiction."
+     "These terms are governed by the laws of India. Courts at Surat, Gujarat have exclusive jurisdiction."
     ],
     "list": []
    },
@@ -137,7 +137,8 @@ export const LEGAL: Record<"terms" | "privacy", LegalDoc> = {
     "id": "t15",
     "h": "15. Contact and grievances",
     "p": [
-     "Questions about these terms can be sent to legal@dobara.in. Complaints can be raised with our Grievance Officer at grievance@dobara.in; we acknowledge within 24 hours and resolve within 15 days."
+     "Dobara is operated by THREADIQ VENTURES PRIVATE LIMITED (GSTIN 24AANCT4861A1ZF), Registered Office: Floor No. UG-67, Atlanta Business Hub, Near Ofira Posh, VIP Road, Vesu, Surat, Gujarat – 395007.",
+     "Questions about these terms and complaints for our Grievance Officer can be sent to info@dobaraa.in; we acknowledge within 24 hours and resolve within 15 days."
     ],
     "list": []
    }
@@ -213,7 +214,7 @@ export const LEGAL: Record<"terms" | "privacy", LegalDoc> = {
     "id": "p7",
     "h": "7. Your rights",
     "p": [
-     "You can access, correct or delete your personal data, withdraw consent for marketing, and nominate another person to exercise your rights. Write to privacy@dobara.in."
+     "You can access, correct or delete your personal data, withdraw consent for marketing, and nominate another person to exercise your rights. Write to info@dobaraa.in."
     ],
     "list": []
    },
@@ -245,7 +246,7 @@ export const LEGAL: Record<"terms" | "privacy", LegalDoc> = {
     "id": "p11",
     "h": "11. Contact",
     "p": [
-     "Data Protection queries: privacy@dobara.in. Grievance Officer: grievance@dobara.in."
+     "Data Protection queries and Grievance Officer: info@dobaraa.in. Dobara is operated by THREADIQ VENTURES PRIVATE LIMITED (GSTIN 24AANCT4861A1ZF), Floor No. UG-67, Atlanta Business Hub, Near Ofira Posh, VIP Road, Vesu, Surat, Gujarat – 395007."
     ],
     "list": []
    }
