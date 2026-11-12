@@ -7,7 +7,7 @@ import { inr } from '@/lib/format';
 import { razorpayEnabled } from '@/lib/payments';
 import { CheckoutSteps } from '@/components/CheckoutSteps';
 import { PriceDetails } from '@/components/PriceDetails';
-import { RazorpayButton } from '@/components/RazorpayButton';
+import { PayShareOptions } from '@/components/PayShareOptions';
 import { FormError, Ic } from '@/components/ui';
 
 export const metadata = { title: 'Confirm & pay' };
@@ -47,32 +47,18 @@ export default async function PayPage({ params, searchParams }: Props) {
 
             <div className="card pad col g12">
               <div className="row g12"><span className="mi-ic" style={{ background: 'var(--pri-50)', color: 'var(--pri)' }}><Ic n="lock" /></span>
-                <div className="col" style={{ gap: 0 }}><span className="eyebrow c-pri">Option 1</span><b className="t-lg">Pay online now</b></div></div>
-            {live ? (
-              <>
-                <span className="t-sm soft">UPI, cards and net banking via Razorpay. Dobara holds the money and pays the seller only after you confirm you got the item.</span>
-                <RazorpayButton orderId={o.id} label={'Pay ' + inr(o.total) + ' online'} name={user.name} email={user.email} />
-              </>
-            ) : (
-              <form action={demoPayAction} className="col g12">
-                <input type="hidden" name="orderId" value={o.id} />
-                <div className="note amber"><Ic n="info" s="sm" /><span><b>Demo payment mode.</b> No Razorpay keys are set, so no money moves. Add test keys in <code>.env</code> to use real Razorpay test checkout.</span></div>
-                {[
-                  ['upi', 'UPI', 'zap', 'Google Pay, PhonePe, Paytm, BHIM'],
-                  ['card', 'Credit / Debit card', 'card', 'Visa, Mastercard, RuPay'],
-                  ['nb', 'Net banking', 'bank', 'All major Indian banks'],
-                ].map(([k, l, ic, d], i) => (
-                  <label key={k} className="opt">
-                    <input type="radio" name="method" value={k} defaultChecked={i === 0} />
-                    <span className="radio" />
-                    <span className="mi-ic"><Ic n={ic!} /></span>
-                    <span className="col" style={{ gap: 0 }}><b>{l}</b><span className="t-xs muted">{d}</span></span>
-                  </label>
-                ))}
-                <button className="btn btn-pri btn-lg btn-block" type="submit"><Ic n="lock" s="sm" />Pay {inr(o.total)} (demo)</button>
-                <button className="btn btn-ghost btn-sm" type="submit" name="simulate" value="fail" style={{ alignSelf: 'center' }}>Simulate a failed payment</button>
-              </form>
-            )}
+                <div className="col" style={{ gap: 0 }}><span className="eyebrow c-pri">Option 1</span><b className="t-lg">Pay online now — full or part</b></div></div>
+              <PayShareOptions
+                orderId={o.id}
+                total={o.total}
+                deliveryFee={o.deliveryFee}
+                live={live}
+                sellerFirst={o.seller.name.split(' ')[0]!}
+                handoverWord={o.mode === 'DELIVERY' ? 'on delivery' : 'at pickup'}
+                name={user.name}
+                email={user.email}
+                demoAction={demoPayAction}
+              />
             </div>
 
             <form action={codOrderAction} className="card pad col g12">
@@ -82,7 +68,7 @@ export default async function PayPage({ params, searchParams }: Props) {
               <span className="t-sm soft">Place the order now and pay <b>{inr(o.total)}</b> to {o.seller.name.split(' ')[0]} in cash or UPI when you get the item. Check the item before you pay.</span>
               <button className="btn btn-sec btn-lg btn-block" type="submit"><Ic n="check" s="sm" />Place order — pay {inr(o.total)} {o.mode === 'DELIVERY' ? 'on delivery' : 'at pickup'}</button>
             </form>
-            <span className="t-xs muted">By placing the order you agree to Dobara’s <Link href="/terms">Terms</Link>. Online payments are released to the seller only after you confirm you received the item.</span>
+            <span className="t-xs muted">By placing the order you agree to Dobara’s <Link href="/terms">Terms</Link>. Online payments are released to the seller only after you confirm you received the item. You can report a problem up to 7 days after delivery.</span>
           </div>
           <aside className="col g12 sticky">
             <PriceDetails title={o.listing.title} photo={o.listing.photos[0]} price={o.agreedPrice} fee={o.deliveryFee} />

@@ -56,7 +56,7 @@ export const LEGAL: Record<"terms" | "privacy", LegalDoc> = {
     "id": "t6",
     "h": "6. Payments and Dobara Secure Pay",
     "p": [
-     "Payments made on Dobara are held by our payment partner and released to the seller only after the buyer confirms receipt, or automatically 48 hours after delivery if no issue is raised."
+     "Payments made on Dobara are held by our payment partner and released to the seller 7 days after delivery if no issue is raised. Buyers may pay 25%, 50% or 100% of the order total online at checkout; any balance is paid directly to the seller in cash or UPI at handover, and Dobara can refund only the amount paid online through Dobara."
     ],
     "list": [
      "Buyers pay the agreed item price plus the flat delivery fee shown at checkout (pickup is free).",
@@ -76,7 +76,7 @@ export const LEGAL: Record<"terms" | "privacy", LegalDoc> = {
     "id": "t8",
     "h": "8. Cancellations, returns and disputes",
     "p": [
-     "If the seller cannot complete an order it is cancelled and the buyer is refunded. If an item is not as described, report it within 48 hours of delivery; the seller’s payout is paused while we review."
+     "If the seller cannot complete an order it is cancelled and the buyer is refunded. If an item is not as described, report it within 7 days of delivery; the seller’s payout is paused while we review."
     ],
     "list": []
    },

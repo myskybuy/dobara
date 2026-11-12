@@ -43,7 +43,7 @@ export default async function AboutPage() {
         </div>
       </section>
       <section className="grid2" style={{ gap: 20 }}>
-        <div className="card pad-l col g12"><span className="eyebrow c-pri">For buyers</span><b className="t-lg">Buy with confidence</b><span className="t-sm soft">Honest condition grades, chat and offers, and 48 hours to check every item before the seller is paid.</span><Link className="linkbtn" href="/browse">Start browsing<Ic n="chevr" s="sm" /></Link></div>
+        <div className="card pad-l col g12"><span className="eyebrow c-pri">For buyers</span><b className="t-lg">Buy with confidence</b><span className="t-sm soft">Honest condition grades, chat and offers, 7 days to report a problem with any item, and the option to pay just 25% or 50% online upfront.</span><Link className="linkbtn" href="/browse">Start browsing<Ic n="chevr" s="sm" /></Link></div>
         <div className="card pad-l col g12"><span className="eyebrow c-amber">For sellers</span><b className="t-lg">Sell without the hassle</b><span className="t-sm soft">Free to list, buyers pay upfront, and you get the full agreed price once the buyer confirms.</span><Link className="linkbtn" href={sellHref}>List an item<Ic n="chevr" s="sm" /></Link></div>
       </section>
       <section className="card pad-l col g16">

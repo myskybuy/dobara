@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { requireUser } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { inr } from '@/lib/format';
+import { balanceDue, isPartPaid, onlinePaid } from '@/lib/payplan';
 import { CheckoutSteps } from '@/components/CheckoutSteps';
 import { PriceDetails } from '@/components/PriceDetails';
 import { Ic } from '@/components/ui';
@@ -28,7 +29,9 @@ export default async function OrderPlacedPage({ params }: { params: Promise<{ id
                 <div className="h2" style={{ color: '#fff' }}>Order placed — waiting for {first}</div>
                 <p style={{ color: '#C9C6F5', margin: 0 }}>{cod
                   ? <>Cash on delivery — keep {inr(o.total)} ready and pay {first} in cash or UPI only after you check the item. The item is now marked Sold.</>
-                  : <>{inr(o.total)} is held safely by Dobara. {first} usually confirms within a few hours. {first} is paid only after you confirm you received the item.</>}</p>
+                  : isPartPaid(o)
+                    ? <>{inr(onlinePaid(o))} is held safely by Dobara. Keep {inr(balanceDue(o))} ready and pay it to {first} in cash or UPI after you check the item. {first} usually confirms within a few hours.</>
+                    : <>{inr(o.total)} is held safely by Dobara. {first} usually confirms within a few hours. {first} is paid only after you confirm you received the item.</>}</p>
                 <div className="row g8 wrapf">
                   <Link className="btn btn-amber" href={`/orders/${o.id}`}><Ic n="package" s="sm" />Track order</Link>
                   {o.conversationId && <Link className="btn btn-sec" href={`/chat/${o.conversationId}`}><Ic n="chat" s="sm" />Message seller</Link>}

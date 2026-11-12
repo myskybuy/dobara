@@ -190,7 +190,9 @@ model Order {
   handoverOtp     String
   razorpayOrderId String?
   paymentId       String?
-  paymentMode     String? // "razorpay" | "demo"
+  paymentMode     String? // "razorpay" | "demo" | "cod"
+  advancePct      Int           @default(100) // share of the total paid online: 25 | 50 | 100 (rest is paid to the seller at handover)
+  paidOnline      Int           @default(0) // rupees actually paid online (0 for cash on delivery)
   paidAt          DateTime?
   acceptedAt      DateTime?
   shippedAt       DateTime?

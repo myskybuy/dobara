@@ -5,8 +5,9 @@ import { db } from '@/lib/db';
 import { getUser } from '@/lib/auth';
 import { DELIVERY_FEE, ISSUE_REASONS } from '@/lib/constants';
 import { str, toInt } from '@/lib/format';
-import { cancelOrder, completeOrder, isCod, markOrderPaid, newHandoverOtp, newOrderCode, sellerNextActions, canEnterOtp } from '@/lib/orders';
+import { cancelOrder, canReportIssue, completeOrder, isCod, markOrderPaid, newHandoverOtp, newOrderCode, sellerNextActions, canEnterOtp } from '@/lib/orders';
 import { razorpayEnabled } from '@/lib/payments';
+import { toAdvancePct } from '@/lib/payplan';
 
 async function me(next: string) {
   const u = await getUser();
@@ -70,6 +71,7 @@ export async function demoPayAction(fd: FormData) {
   if (o.status !== 'PENDING_PAYMENT') redirect('/orders/' + orderId);
   if (!['ACTIVE', 'RESERVED'].includes(o.listing.status)) err('/pay/' + orderId, 'Sorry, this item was just sold to someone else. You have not been charged.');
   if (str(fd.get('simulate')) === 'fail') err('/pay/' + orderId, 'Payment failed (demo). No money was taken. Please try again.');
+  await db.order.update({ where: { id: orderId }, data: { advancePct: toAdvancePct(fd.get('pct')) } });
   const res = await markOrderPaid(orderId, 'demo', 'demo_' + Date.now());
   if (res === 'sold_out') err('/orders', 'Sorry, this item was just sold to someone else. Your payment will be refunded.');
   redirect('/orders/' + orderId + '/placed');
@@ -115,9 +117,9 @@ export async function reportIssueAction(fd: FormData) {
   const orderId = str(fd.get('orderId'));
   const back = '/orders/' + orderId + '/report';
   const user = await me(back);
-  const o = await db.order.findUnique({ where: { id: orderId } });
+  const o = await db.order.findUnique({ where: { id: orderId }, include: { payout: true } });
   if (!o || o.buyerId !== user.id) redirect('/orders');
-  if (!['DELIVERED', 'OUT_FOR_DELIVERY', 'HANDED_TO_DELIVERY', 'READY_FOR_PICKUP', 'ACCEPTED', 'PAID'].includes(o.status)) err(back, 'A problem can no longer be reported for this order.');
+  if (!canReportIssue(o)) err(back, 'A problem can no longer be reported for this order. Problems can be reported up to 7 days after delivery.');
   const reason = str(fd.get('reason'));
   const text = str(fd.get('text'));
   if (!ISSUE_REASONS.includes(reason)) err(back, 'Please choose what the problem is.');

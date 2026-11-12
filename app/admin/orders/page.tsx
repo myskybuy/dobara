@@ -5,6 +5,7 @@ import { ORDER_STATUS_BADGE, ORDER_STATUS_LABEL } from '@/lib/constants';
 import { db } from '@/lib/db';
 import { fmtDateTime, inr } from '@/lib/format';
 import { autoCompleteOrders } from '@/lib/orders';
+import { balanceDue, isPartPaid, onlinePaid } from '@/lib/payplan';
 
 export const metadata = { title: 'Orders & payouts' };
 
@@ -38,7 +39,10 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
                 <span className="col" style={{ gap: 0, minWidth: 0 }}><b className="clamp1">{o.listing.title}</b><span className="t-xs muted">{o.code} · {o.mode === 'DELIVERY' ? 'Delivery' : 'Pickup'} · {fmtDateTime(o.paidAt ?? o.createdAt)} · {o.paymentMode === 'razorpay' ? 'Razorpay' : o.paymentMode === 'cod' ? 'Cash on delivery' : 'Demo pay'}</span></span>
                 <span className="clamp1">{o.buyer.name}</span>
                 <span className="clamp1">{o.seller.name}</span>
-                <span className="num strong">{inr(o.total)}</span>
+                <span className="col" style={{ gap: 0 }}>
+                  <span className="num strong">{inr(o.total)}</span>
+                  {isPartPaid(o) && o.status !== 'PENDING_PAYMENT' && <span className="t-xs muted">{inr(onlinePaid(o))} online ({o.advancePct}%) · {inr(balanceDue(o))} at handover</span>}
+                </span>
                 <span><span className={'badge ' + ORDER_STATUS_BADGE[o.status]}>{ORDER_STATUS_LABEL[o.status]}</span></span>
                 <span>
                   {!['COMPLETED', 'CANCELLED'].includes(o.status) && (
@@ -53,7 +57,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
         <div className="card" style={{ overflow: 'hidden' }}>
           <div className="dt-scroll"><div className="dt-inner">
             <div className="dt-row dt-head" style={{ gridTemplateColumns: 'minmax(0,2fr) 1.3fr 1fr 1fr 130px' }}><span>Order</span><span>Seller</span><span>Amount</span><span>Status</span><span /></div>
-            {payouts.length === 0 && <div className="pad t-sm muted">No payouts yet. A payout is created when the buyer confirms receipt.</div>}
+            {payouts.length === 0 && <div className="pad t-sm muted">No payouts yet. A payout is created once an order is complete and its 7-day problem window after delivery is over.</div>}
             {payouts.map((p) => (
               <div key={p.id} className="dt-row" style={{ gridTemplateColumns: 'minmax(0,2fr) 1.3fr 1fr 1fr 130px' }}>
                 <span className="col" style={{ gap: 0, minWidth: 0 }}><b className="clamp1">{p.order.listing.title}</b><span className="t-xs muted">{p.order.code}</span></span>

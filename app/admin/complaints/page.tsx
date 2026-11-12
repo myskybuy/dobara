@@ -2,6 +2,7 @@ import { resolveComplaintAction, resolveContactMessageAction } from '@/app/actio
 import { requireAdmin } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { fmtDateTime, inr } from '@/lib/format';
+import { balanceDue, onlinePaid } from '@/lib/payplan';
 import { Empty, Notice, Photo } from '@/components/ui';
 
 export const metadata = { title: 'Complaints' };
@@ -31,6 +32,7 @@ export default async function AdminComplaintsPage({ searchParams }: { searchPara
                 <span className="row g8"><span className={'badge ' + (c.status === 'OPEN' ? 'b-amber' : 'b-green')}>{c.status === 'OPEN' ? 'Open' : 'Resolved'}</span><span className="t-xs muted">{fmtDateTime(c.createdAt)} · Order {c.order.code}</span></span>
                 <b>{c.reason}</b>
                 <span className="t-sm soft">{c.order.listing.title} · {inr(c.order.total)} · Buyer {c.user.name} · Seller {c.order.seller.name}</span>
+                <span className="t-xs muted">Paid online (refundable by Dobara): {inr(onlinePaid(c.order))}{balanceDue(c.order) > 0 ? ` · ${inr(balanceDue(c.order))} paid to the seller directly` : ''}</span>
               </div>
             </div>
             <p className="t-sm" style={{ whiteSpace: 'pre-line' }}>“{c.text}”</p>

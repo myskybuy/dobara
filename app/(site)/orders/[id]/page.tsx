@@ -5,7 +5,8 @@ import { requireUser } from '@/lib/auth';
 import { ORDER_STATUS_BADGE, ORDER_STATUS_LABEL } from '@/lib/constants';
 import { db } from '@/lib/db';
 import { inr } from '@/lib/format';
-import { autoCompleteOrders, hoursLeftToConfirm, isCod, orderSteps } from '@/lib/orders';
+import { autoCompleteOrders, canReportIssue, daysLeftToReport, hoursLeftToConfirm, isCod, orderSteps, paymentLine } from '@/lib/orders';
+import { balanceDue, isPartPaid } from '@/lib/payplan';
 import { PriceDetails } from '@/components/PriceDetails';
 import { Timeline } from '@/components/Timeline';
 import { FormError, Ic, Notice } from '@/components/ui';
@@ -19,7 +20,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
   const sp = await searchParams;
   const user = await requireUser('/orders/' + id);
   await autoCompleteOrders();
-  const o = await db.order.findUnique({ where: { id }, include: { listing: true, seller: true, reviews: true, complaints: { orderBy: { createdAt: 'desc' }, take: 1 } } });
+  const o = await db.order.findUnique({ where: { id }, include: { listing: true, seller: true, reviews: true, payout: true, complaints: { orderBy: { createdAt: 'desc' }, take: 1 } } });
   if (!o || o.buyerId !== user.id || o.status === 'PENDING_PAYMENT') notFound();
   const steps = orderSteps(o, o.seller.name.split(' ')[0]!);
   const current = steps.find((s) => s.state === 'now') ?? steps[steps.length - 1]!;
@@ -43,9 +44,9 @@ export default async function OrderPage({ params, searchParams }: Props) {
             <p className="soft">
               {o.status === 'CANCELLED' ? (cod ? 'This order was cancelled. Nothing was charged.' : 'The seller could not complete this order. Your payment will be refunded.') :
                 o.status === 'ISSUE_REPORTED' ? 'Our team is looking into it. The seller is not paid until it is resolved.' :
-                o.status === 'COMPLETED' ? (cod ? 'You confirmed receipt. Thanks for using Dobara!' : 'You confirmed receipt and the seller has been paid. Thanks for using Dobara!') : current.desc}
+                o.status === 'COMPLETED' ? 'You confirmed receipt. Thanks for using Dobara!' : current.desc}
             </p>
-            <span className={'badge ' + (cod ? 'b-amber' : 'b-green')} style={{ alignSelf: 'flex-start' }}><Ic n={cod ? 'wallet' : 'lock'} s="xs" />{cod ? (o.status === 'COMPLETED' || o.status === 'DELIVERED' ? 'Cash on delivery' : `Cash on delivery — pay ${inr(o.total)} at handover`) : `Paid online — ${inr(o.total)} held by Dobara`}</span>
+            <span className={'badge ' + (cod ? 'b-amber' : 'b-green')} style={{ alignSelf: 'flex-start' }}><Ic n={cod ? 'wallet' : 'lock'} s="xs" />{paymentLine(o)}</span>
             <span className="t-sm muted">{o.mode === 'DELIVERY' ? <>Deliver to: {o.address}</> : <>Pickup: {o.pickupPlace} · {o.pickupTime}</>}</span>
           </div>
 
@@ -62,9 +63,16 @@ export default async function OrderPage({ params, searchParams }: Props) {
           {o.status === 'DELIVERED' && (
             <div className="card pad row between wrapf g12" style={{ background: 'var(--green-50)', borderColor: '#CBE7D6' }}>
               <div className="row g12"><Ic n="checkc" s="lg" className="c-green" />
-                <div className="col g4" style={{ gap: 0 }}><b>Item handed over</b><span className="t-sm soft">Check it and confirm within {hoursLeftToConfirm(o)} hours, or report a problem.</span></div>
+                <div className="col g4" style={{ gap: 0 }}><b>Item handed over</b><span className="t-sm soft">{isPartPaid(o) ? `Pay ${inr(balanceDue(o))} to the seller if you haven’t yet. ` : ''}Check it and confirm within {hoursLeftToConfirm(o)} hours. You can report a problem for {daysLeftToReport(o)} days.</span></div>
               </div>
               <Link className="btn btn-pri" href={`/orders/${o.id}/check`}>Check &amp; confirm</Link>
+            </div>
+          )}
+
+          {o.status === 'COMPLETED' && canReportIssue(o) && (
+            <div className="card pad row between wrapf g12">
+              <div className="col g4" style={{ gap: 0 }}><b>Something wrong with the item?</b><span className="t-sm soft">You can still report a problem for {daysLeftToReport(o)} more {daysLeftToReport(o) === 1 ? 'day' : 'days'}.</span></div>
+              <Link className="btn btn-sec" href={`/orders/${o.id}/report`}><Ic n="alert" s="sm" />Report a problem</Link>
             </div>
           )}
 

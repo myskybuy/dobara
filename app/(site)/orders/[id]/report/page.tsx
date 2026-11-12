@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { reportIssueAction } from '@/app/actions/orders';
+import { canReportIssue } from '@/lib/orders';
 import { requireUser } from '@/lib/auth';
 import { ISSUE_REASONS } from '@/lib/constants';
 import { db } from '@/lib/db';
@@ -14,8 +15,9 @@ export default async function ReportPage({ params, searchParams }: Props) {
   const { id } = await params;
   const { error } = await searchParams;
   const user = await requireUser('/orders/' + id + '/report');
-  const o = await db.order.findUnique({ where: { id }, include: { listing: true } });
+  const o = await db.order.findUnique({ where: { id }, include: { listing: true, payout: true } });
   if (!o || o.buyerId !== user.id) notFound();
+  if (!canReportIssue(o)) redirect('/orders/' + id + '?error=' + encodeURIComponent('Problems can be reported up to 7 days after delivery. This order can no longer be reported.'));
 
   return (
     <div className="container" style={{ maxWidth: 720, paddingTop: 24, paddingBottom: 48 }}>

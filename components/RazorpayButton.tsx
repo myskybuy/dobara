@@ -21,7 +21,7 @@ function loadScript(): Promise<boolean> {
 }
 
 /** Razorpay TEST checkout. Creates the Razorpay order on the server, opens the popup, verifies the signature on the server. */
-export function RazorpayButton({ orderId, label, name, email }: { orderId: string; label: string; name: string; email: string }) {
+export function RazorpayButton({ orderId, label, name, email, pct = 100 }: { orderId: string; label: string; name: string; email: string; pct?: number }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const router = useRouter();
@@ -30,7 +30,7 @@ export function RazorpayButton({ orderId, label, name, email }: { orderId: strin
     setBusy(true); setErr(null);
     const ok = await loadScript();
     if (!ok || !window.Razorpay) { setBusy(false); setErr('Could not load Razorpay. Check your internet connection.'); return; }
-    const res = await fetch('/api/payments/razorpay-order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId }) });
+    const res = await fetch('/api/payments/razorpay-order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId, pct }) });
     const data = (await res.json().catch(() => ({}))) as { keyId?: string; rzpOrderId?: string; amount?: number; code?: string; error?: string };
     if (!res.ok || !data.rzpOrderId) { setBusy(false); setErr(data.error || 'Could not start payment'); return; }
 

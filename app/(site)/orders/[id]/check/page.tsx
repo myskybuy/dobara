@@ -4,7 +4,7 @@ import { confirmReceiptAction } from '@/app/actions/orders';
 import { requireUser } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { fmtDateTime, inr } from '@/lib/format';
-import { hoursLeftToConfirm } from '@/lib/orders';
+import { daysLeftToReport, hoursLeftToConfirm } from '@/lib/orders';
 import { PriceDetails } from '@/components/PriceDetails';
 import { FormError, Ic, Photo } from '@/components/ui';
 
@@ -29,7 +29,7 @@ export default async function CheckItemPage({ params, searchParams }: Props) {
             <Ic n="checkc" s="lg" className="c-green" />
             <div className="col g4" style={{ gap: 0 }}>
               <b className="t-lg">Your item has been handed over</b>
-              <span className="t-sm soft">{fmtDateTime(o.deliveredAt)} · Check it now — you have {hoursLeftToConfirm(o)} hours to confirm or report a problem.</span>
+              <span className="t-sm soft">{fmtDateTime(o.deliveredAt)} · Check it now — confirm within {hoursLeftToConfirm(o)} hours. You can report a problem for {daysLeftToReport(o)} more days.</span>
             </div>
           </div>
           <FormError msg={error} />
@@ -49,7 +49,7 @@ export default async function CheckItemPage({ params, searchParams }: Props) {
             {['It matches the photos and description', 'It powers on and works as expected', 'All listed accessories are included', 'Serial / IMEI matches the bill (if any)'].map((t) => (
               <label key={t} className="row g8 t-sm"><input type="checkbox" required /> {t}</label>
             ))}
-            <div className="note amber"><Ic n="alert" s="sm" /><span>Confirming releases {inr(o.agreedPrice)} to {first}. This can’t be undone — if something is wrong, report a problem instead.</span></div>
+            <div className="note amber"><Ic n="alert" s="sm" /><span>Confirming completes the order and {first} is paid after the 7-day problem window. If something is wrong later, you can still report it within 7 days of delivery.</span></div>
             <div className="row wrapf g8">
               <button className="btn btn-pri" type="submit"><Ic n="checkc" s="sm" />Everything’s fine — confirm receipt</button>
               <Link className="btn btn-sec" href={`/orders/${o.id}/report`}><Ic n="alert" s="sm" />Report a problem</Link>
